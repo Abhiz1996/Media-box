@@ -1,7 +1,7 @@
 const introScreen = document.querySelector("#introScreen");
 const invitation = document.querySelector("#invitation");
 const openInvite = document.querySelector("#openInvite");
-const petals = document.querySelector(".petals");
+const flowerRain = document.querySelector(".flower-rain");
 
 const ceremonyStart = new Date("2026-05-25T11:56:00+05:30");
 const ceremonyEnd = new Date("2026-05-25T12:46:00+05:30");
@@ -27,15 +27,15 @@ const events = {
   }
 };
 
-function createPetals() {
+function createFlowers() {
   for (let index = 0; index < 14; index += 1) {
-    const petal = document.createElement("span");
-    petal.className = "petal";
-    petal.style.left = `${(index + 1) * 7}%`;
-    petal.style.animationDuration = `${12 + index * 1.2}s`;
-    petal.style.animationDelay = `${index * -1.4}s`;
-    petal.style.transform = `scale(${0.75 + (index % 4) * 0.12})`;
-    petals.appendChild(petal);
+    const flower = document.createElement("span");
+    flower.className = index % 3 === 0 ? "falling-flower golden-flower" : "falling-flower jasmine-flower";
+    flower.style.left = `${(index + 1) * 7}%`;
+    flower.style.animationDuration = `${12 + index * 1.2}s`;
+    flower.style.animationDelay = `${index * -1.4}s`;
+    flower.style.setProperty("--flower-scale", `${0.78 + (index % 4) * 0.1}`);
+    flowerRain.appendChild(flower);
   }
 }
 
@@ -118,6 +118,6 @@ document.querySelectorAll("[data-location]").forEach((button) => {
   button.addEventListener("click", () => openLocation(button.dataset.location));
 });
 
-createPetals();
+createFlowers();
 updateCountdown();
 window.setInterval(updateCountdown, 1000);
