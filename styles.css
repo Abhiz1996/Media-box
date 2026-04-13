@@ -76,8 +76,8 @@ button {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.7fr);
-  gap: 24px;
+  place-items: center;
+  text-align: center;
   padding: clamp(28px, 5vw, 54px);
   background:
     linear-gradient(135deg, rgba(10, 93, 97, 0.94), rgba(12, 124, 120, 0.9) 45%, rgba(217, 111, 71, 0.78)),
@@ -85,7 +85,7 @@ button {
   color: #f9faf8;
 }
 
-.hero-copy h1,
+.hero h1,
 .section-head h2,
 .section-title h3,
 .summary-block h4 {
@@ -94,14 +94,12 @@ button {
   letter-spacing: -0.02em;
 }
 
-.hero-copy h1 {
-  max-width: 10ch;
+.hero h1 {
   font-size: clamp(2.8rem, 6vw, 5.2rem);
   line-height: 0.98;
 }
 
 .eyebrow,
-.card-label,
 .section-title span {
   display: inline-flex;
   align-items: center;
@@ -114,39 +112,11 @@ button {
   text-transform: uppercase;
 }
 
-.hero-text,
 .section-head p,
 .submit-panel p,
 .summary-meta p {
   margin: 0;
   line-height: 1.8;
-}
-
-.hero-text {
-  max-width: 62ch;
-  margin-top: 22px;
-  color: rgba(249, 250, 248, 0.84);
-  font-size: 1.05rem;
-}
-
-.hero-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 28px;
-}
-
-.hero-pills span,
-.helper-note {
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.hero-pills span {
-  padding: 11px 16px;
-  font-size: 0.92rem;
-  font-weight: 600;
 }
 
 .hero-card,
@@ -155,23 +125,6 @@ button {
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.14);
   border: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-.hero-card {
-  align-self: end;
-  padding: 24px;
-}
-
-.hero-card ol {
-  margin: 0;
-  padding-left: 20px;
-  line-height: 1.8;
-}
-
-.card-note {
-  margin: 18px 0 0;
-  color: rgba(249, 250, 248, 0.78);
-  line-height: 1.7;
 }
 
 .form-shell,
@@ -188,11 +141,6 @@ button {
 .section-head h2 {
   font-size: clamp(2rem, 4.5vw, 3.4rem);
   color: var(--ink);
-}
-
-.section-head p {
-  margin-top: 12px;
-  color: var(--subtle);
 }
 
 .media-form {
@@ -328,15 +276,6 @@ button {
   box-shadow: 0 18px 36px rgba(12, 124, 120, 0.12);
 }
 
-.helper-note {
-  display: inline-flex;
-  margin: 16px 0 0;
-  padding: 10px 15px;
-  color: var(--brand-deep);
-  font-size: 0.92rem;
-  font-weight: 600;
-}
-
 .submission-section {
   background:
     linear-gradient(135deg, rgba(12, 124, 120, 0.08), rgba(217, 111, 71, 0.08)),
@@ -463,7 +402,6 @@ button {
 }
 
 @media (max-width: 920px) {
-  .hero,
   .choice-grid,
   .field-grid.two-col {
     grid-template-columns: 1fr;
