@@ -16,6 +16,7 @@ const prSection = document.querySelector('[data-branch="pr"]');
 const achievementsSection = document.querySelector('[data-branch="achievements"]');
 const socialTypeSections = Array.from(document.querySelectorAll("[data-social-branch]"));
 const stepPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
+const progressSteps = Array.from(document.querySelectorAll("[data-progress-step]"));
 
 let currentStep = "intro";
 
@@ -69,7 +70,22 @@ function showStep(stepName) {
   stepPanels.forEach((panel) => {
     panel.classList.toggle("hidden", panel.dataset.stepPanel !== stepName);
   });
+  updateProgress(stepName);
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function updateProgress(stepName) {
+  const order = ["intro", "social-type", "details", "summary"];
+  const mappedStep = stepName === "social-details" || stepName === "pr" || stepName === "achievements"
+    ? "details"
+    : stepName;
+  const activeIndex = order.indexOf(mappedStep);
+
+  progressSteps.forEach((node) => {
+    const nodeIndex = order.indexOf(node.dataset.progressStep);
+    node.classList.toggle("is-active", nodeIndex === activeIndex);
+    node.classList.toggle("is-complete", nodeIndex < activeIndex);
+  });
 }
 
 function toggleCategoryBranches() {
@@ -438,6 +454,7 @@ form.addEventListener("submit", async (event) => {
 
   summaryCard.innerHTML = buildSummaryMarkup(payload);
   summarySection.classList.remove("hidden");
+  updateProgress("summary");
   printSummaryButtons.forEach((button) => {
     button.disabled = false;
   });

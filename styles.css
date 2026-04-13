@@ -11,6 +11,7 @@
   --accent-soft: #f2ddcc;
   --gold: #c2a04b;
   --shadow: 0 22px 60px rgba(16, 30, 38, 0.12);
+  --shadow-strong: 0 28px 70px rgba(16, 30, 38, 0.18);
   --radius: 24px;
 }
 
@@ -31,6 +32,7 @@ body {
     radial-gradient(circle at top left, rgba(12, 124, 120, 0.16), transparent 28%),
     radial-gradient(circle at right 18%, rgba(217, 111, 71, 0.18), transparent 24%),
     linear-gradient(180deg, #eef3f0 0%, #f8f5ef 42%, #f3ede3 100%);
+  background-attachment: fixed;
 }
 
 button,
@@ -83,6 +85,31 @@ button {
     linear-gradient(135deg, rgba(10, 93, 97, 0.94), rgba(12, 124, 120, 0.9) 45%, rgba(217, 111, 71, 0.78)),
     #0c7c78;
   color: #f9faf8;
+  overflow: hidden;
+}
+
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  opacity: 0.45;
+}
+
+.hero::before {
+  width: 180px;
+  height: 180px;
+  top: -48px;
+  left: 48px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22), transparent 70%);
+}
+
+.hero::after {
+  width: 220px;
+  height: 220px;
+  right: -50px;
+  bottom: -90px;
+  background: radial-gradient(circle, rgba(255, 233, 208, 0.28), transparent 72%);
 }
 
 .hero h1,
@@ -97,6 +124,7 @@ button {
 .hero h1 {
   font-size: clamp(2.8rem, 6vw, 5.2rem);
   line-height: 0.98;
+  text-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
 }
 
 .eyebrow,
@@ -134,6 +162,38 @@ button {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 252, 247, 0.86));
 }
 
+.progress-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.progress-step {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(21, 32, 40, 0.08);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--subtle);
+  font-size: 0.92rem;
+  font-weight: 800;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+.progress-step.is-active {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(12, 124, 120, 0.16), rgba(217, 111, 71, 0.18));
+  color: var(--brand-deep);
+  box-shadow: 0 12px 24px rgba(12, 124, 120, 0.12);
+}
+
+.progress-step.is-complete {
+  background: linear-gradient(135deg, rgba(12, 124, 120, 0.96), rgba(10, 93, 97, 0.92));
+  color: #fff;
+}
+
 .section-head {
   max-width: 760px;
 }
@@ -150,6 +210,7 @@ button {
 .step-panel {
   display: grid;
   gap: 18px;
+  animation: panel-enter 320ms ease;
 }
 
 .form-section {
@@ -158,6 +219,13 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.form-section:hover {
+  transform: translateY(-1px);
+  border-color: rgba(12, 124, 120, 0.16);
+  box-shadow: 0 18px 34px rgba(16, 30, 38, 0.05);
 }
 
 .section-title {
@@ -217,6 +285,12 @@ button {
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
+.field input:hover,
+.field select:hover,
+.field textarea:hover {
+  border-color: rgba(12, 124, 120, 0.22);
+}
+
 .field textarea {
   min-height: 132px;
   resize: vertical;
@@ -242,6 +316,7 @@ button {
 }
 
 .choice-card {
+  position: relative;
   display: grid;
   gap: 10px;
   min-height: 150px;
@@ -250,13 +325,32 @@ button {
   border-radius: 24px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 244, 239, 0.92));
   cursor: pointer;
-  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  overflow: hidden;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.choice-card::after {
+  content: "";
+  position: absolute;
+  right: -22px;
+  bottom: -22px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(12, 124, 120, 0.12), transparent 70%);
+  opacity: 0;
+  transition: opacity 180ms ease;
 }
 
 .choice-card:hover {
   transform: translateY(-3px);
   border-color: rgba(12, 124, 120, 0.28);
   box-shadow: 0 16px 30px rgba(16, 30, 38, 0.08);
+}
+
+.choice-card:hover::after,
+.choice-card.is-selected::after {
+  opacity: 1;
 }
 
 .choice-card input {
@@ -291,6 +385,7 @@ button {
   padding: 22px;
   background: rgba(255, 255, 255, 0.56);
   border-color: rgba(21, 32, 40, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48);
 }
 
 .action-bar {
@@ -313,6 +408,7 @@ button {
   border-radius: 18px;
   font-weight: 800;
   letter-spacing: 0.01em;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
 .primary-button {
@@ -321,10 +417,21 @@ button {
   box-shadow: 0 14px 28px rgba(10, 93, 97, 0.22);
 }
 
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-strong);
+}
+
 .ghost-button {
   border: 1px solid rgba(21, 32, 40, 0.12);
   background: rgba(255, 255, 255, 0.84);
   color: var(--ink);
+}
+
+.ghost-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: rgba(12, 124, 120, 0.22);
+  box-shadow: 0 14px 24px rgba(16, 30, 38, 0.08);
 }
 
 .ghost-button:disabled {
@@ -412,7 +519,19 @@ button {
   word-break: break-word;
 }
 
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 920px) {
+  .progress-strip,
   .choice-grid,
   .field-grid.two-col {
     grid-template-columns: 1fr;
@@ -452,6 +571,10 @@ button {
   }
 
   .action-bar {
+    flex-direction: column;
+  }
+
+  .step-actions {
     flex-direction: column;
   }
 
