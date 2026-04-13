@@ -147,6 +147,11 @@ button {
   margin-top: 28px;
 }
 
+.step-panel {
+  display: grid;
+  gap: 18px;
+}
+
 .form-section {
   margin-top: 18px;
   padding: 24px;
@@ -293,6 +298,12 @@ button {
   flex-wrap: wrap;
   gap: 14px;
   margin-top: 18px;
+}
+
+.step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
 }
 
 .primary-button,

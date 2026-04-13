@@ -5,25 +5,29 @@ const APP_CONFIG = {
 };
 
 const form = document.querySelector("#mediaRequestForm");
-const statusMessage = document.querySelector("#formStatus");
 const summarySection = document.querySelector("#summarySection");
 const summaryCard = document.querySelector("#summaryCard");
-const printSummaryButton = document.querySelector("#printSummaryButton");
+const printSummaryButtons = Array.from(document.querySelectorAll(".print-summary-button"));
+const statusMessages = Array.from(document.querySelectorAll(".status-message"));
 
 const categoryInputs = Array.from(document.querySelectorAll('input[name="category"]'));
 const socialTypeInputs = Array.from(document.querySelectorAll('input[name="socialType"]'));
-const socialBranchSection = document.querySelector('[data-branch="social"]');
 const prSection = document.querySelector('[data-branch="pr"]');
 const achievementsSection = document.querySelector('[data-branch="achievements"]');
 const socialTypeSections = Array.from(document.querySelectorAll("[data-social-branch]"));
+const stepPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
+
+let currentStep = "intro";
 
 function selectedValue(name) {
   return form.querySelector(`input[name="${name}"]:checked`)?.value || "";
 }
 
 function setStatus(message, isError = false) {
-  statusMessage.textContent = message;
-  statusMessage.style.color = isError ? "#b2462a" : "#0a5d61";
+  statusMessages.forEach((node) => {
+    node.textContent = message;
+    node.style.color = isError ? "#b2462a" : "#0a5d61";
+  });
 }
 
 function updateChoiceCards() {
@@ -60,13 +64,20 @@ function clearHiddenSectionFields(section) {
   });
 }
 
+function showStep(stepName) {
+  currentStep = stepName;
+  stepPanels.forEach((panel) => {
+    panel.classList.toggle("hidden", panel.dataset.stepPanel !== stepName);
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function toggleCategoryBranches() {
   const category = selectedValue("category");
   const isSocial = category === "Social Media";
   const isPr = category === "PR";
   const isAchievements = category === "Achievements";
 
-  socialBranchSection.classList.toggle("hidden", !isSocial);
   prSection.classList.toggle("hidden", !isPr);
   achievementsSection.classList.toggle("hidden", !isAchievements);
 
@@ -107,6 +118,52 @@ function toggleSocialTypeBranches() {
 
   setRequiredBySocialType(socialType);
   updateChoiceCards();
+}
+
+function fieldsAreValid(selectors) {
+  return selectors.every((selector) => {
+    const field = form.querySelector(selector);
+    return field?.reportValidity();
+  });
+}
+
+function goForwardFromIntro() {
+  const introValid = fieldsAreValid([
+    'input[name="employeeName"]',
+    'select[name="department"]'
+  ]);
+
+  if (!introValid) {
+    return;
+  }
+
+  if (!selectedValue("category")) {
+    form.querySelector('input[name="category"]').reportValidity();
+    return;
+  }
+
+  if (selectedValue("category") === "Social Media") {
+    showStep("social-type");
+    return;
+  }
+
+  if (selectedValue("category") === "PR") {
+    showStep("pr");
+    return;
+  }
+
+  if (selectedValue("category") === "Achievements") {
+    showStep("achievements");
+  }
+}
+
+function goForwardFromSocialType() {
+  if (!selectedValue("socialType")) {
+    form.querySelector('input[name="socialType"]').reportValidity();
+    return;
+  }
+
+  showStep("social-details");
 }
 
 function formatDateValue(value) {
@@ -335,15 +392,31 @@ async function submitToEndpoint(payload) {
 }
 
 categoryInputs.forEach((input) => {
-  input.addEventListener("change", toggleCategoryBranches);
+  input.addEventListener("change", () => {
+    toggleCategoryBranches();
+    if (currentStep !== "intro") {
+      showStep("intro");
+    }
+  });
 });
 
 socialTypeInputs.forEach((input) => {
   input.addEventListener("change", toggleSocialTypeBranches);
 });
 
-printSummaryButton.addEventListener("click", () => {
-  window.print();
+document.querySelector("#introNextButton").addEventListener("click", goForwardFromIntro);
+document.querySelector("#socialTypeNextButton").addEventListener("click", goForwardFromSocialType);
+
+document.querySelectorAll("[data-go-step]").forEach((button) => {
+  button.addEventListener("click", () => {
+    showStep(button.dataset.goStep);
+  });
+});
+
+printSummaryButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    window.print();
+  });
 });
 
 form.addEventListener("submit", async (event) => {
@@ -365,15 +438,17 @@ form.addEventListener("submit", async (event) => {
 
   summaryCard.innerHTML = buildSummaryMarkup(payload);
   summarySection.classList.remove("hidden");
-  printSummaryButton.disabled = false;
+  printSummaryButtons.forEach((button) => {
+    button.disabled = false;
+  });
 
   try {
     const result = await submitToEndpoint(payload);
 
     if (result?.mode === "preview-only") {
-      setStatus("Summary generated. Connect a Google Apps Script URL in script.js to send responses to Sheets and PDF automation.");
+      setStatus("Summary generated.");
     } else {
-      setStatus("Submission sent successfully. The summary is ready and the backend can now store it in Sheets / PDF.");
+      setStatus("Submission sent successfully.");
     }
   } catch (error) {
     setStatus(`${error.message} The summary is still available below for printing or saving as PDF.`, true);
@@ -385,3 +460,4 @@ form.addEventListener("submit", async (event) => {
 toggleCategoryBranches();
 toggleSocialTypeBranches();
 updateChoiceCards();
+showStep("intro");
