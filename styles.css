@@ -531,10 +531,13 @@ button {
 }
 
 @media (max-width: 920px) {
-  .progress-strip,
   .choice-grid,
   .field-grid.two-col {
     grid-template-columns: 1fr;
+  }
+
+  .progress-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .summary-header {
@@ -568,6 +571,15 @@ button {
 
   .choice-card {
     min-height: unset;
+  }
+
+  .progress-strip {
+    gap: 8px;
+  }
+
+  .progress-step {
+    min-height: 38px;
+    font-size: 0.82rem;
   }
 
   .action-bar {
