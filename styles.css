@@ -379,6 +379,34 @@ a {
   text-align: center;
 }
 
+.section-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0 auto 30px;
+}
+
+.section-divider span {
+  width: 84px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(143, 117, 80, 0.45), transparent);
+}
+
+.section-divider i {
+  width: 34px;
+  height: 34px;
+  display: block;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at center, rgba(205, 161, 43, 0.95) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 50% 16%, rgba(205, 161, 43, 0.68) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 84% 50%, rgba(205, 161, 43, 0.68) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 50% 84%, rgba(205, 161, 43, 0.68) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 16% 50%, rgba(205, 161, 43, 0.68) 0 18%, transparent 19%);
+  box-shadow: 0 0 18px rgba(205, 161, 43, 0.14);
+}
+
 .section-block > h2 {
   margin: 8px 0 22px;
   color: var(--brass);
@@ -716,7 +744,7 @@ a {
     min-height: auto;
     text-align: center;
     justify-items: center;
-    padding-bottom: 18px;
+    padding-bottom: 28px;
   }
 
   .lead {
@@ -795,7 +823,7 @@ a {
 
   .hero-panel {
     min-height: auto;
-    padding: 22px 22px 20px;
+    padding: 22px 22px 28px;
   }
 
   .section-block {
@@ -803,7 +831,11 @@ a {
   }
 
   .section-block.ceremony {
-    padding-top: 20px;
+    padding-top: 34px;
+  }
+
+  .section-divider {
+    margin-bottom: 22px;
   }
 
   .countdown {
