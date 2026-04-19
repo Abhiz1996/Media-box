@@ -519,9 +519,11 @@ a {
 }
 
 .ceremony .countdown-panel {
+  position: relative;
   background:
     linear-gradient(180deg, rgba(255, 251, 246, 0.98), rgba(243, 234, 224, 0.92));
   border-color: rgba(205, 161, 43, 0.18);
+  overflow: hidden;
 }
 
 .reception {
@@ -578,6 +580,61 @@ a {
   color: var(--brass);
   font-family: "Playfair Display", Georgia, serif;
   font-size: 3.4rem;
+}
+
+.countdown-fireworks {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.countdown-fireworks.is-active {
+  opacity: 1;
+}
+
+.ceremony .countdown-panel.is-celebrating {
+  animation: countdown-celebrate 1100ms ease-out;
+}
+
+.firework-burst {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+}
+
+.firework-burst::before {
+  content: "";
+  position: absolute;
+  inset: -34px;
+  border-radius: 999px;
+  background:
+    conic-gradient(from 0deg,
+      rgba(205, 161, 43, 0) 0deg 12deg,
+      rgba(205, 161, 43, 0.9) 12deg 20deg,
+      rgba(205, 161, 43, 0) 20deg 40deg,
+      rgba(230, 166, 141, 0.82) 40deg 48deg,
+      rgba(205, 161, 43, 0) 48deg 72deg,
+      rgba(127, 184, 200, 0.8) 72deg 80deg,
+      rgba(205, 161, 43, 0) 80deg 104deg,
+      rgba(205, 161, 43, 0.9) 104deg 112deg,
+      rgba(205, 161, 43, 0) 112deg 360deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 54%, #000 55% 60%, transparent 61%);
+  mask: radial-gradient(circle, transparent 0 54%, #000 55% 60%, transparent 61%);
+  animation: firework-burst 1100ms ease-out forwards;
+}
+
+.firework-burst::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95), rgba(241, 211, 107, 0.2) 62%, transparent 70%);
+  animation: firework-core 1100ms ease-out forwards;
 }
 
 .detail-card p {
@@ -864,6 +921,58 @@ a {
   }
 }
 
+@keyframes firework-burst {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  20% {
+    transform: scale(0.7);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes firework-core {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  25% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+@keyframes countdown-celebrate {
+  0% {
+    transform: translateY(18px) scale(0.985);
+    box-shadow:
+      0 26px 42px rgba(143, 117, 80, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.84);
+  }
+  45% {
+    transform: translateY(0) scale(1);
+    box-shadow:
+      0 34px 56px rgba(201, 154, 46, 0.2),
+      0 0 0 1px rgba(205, 161, 43, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow:
+      0 26px 42px rgba(143, 117, 80, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.84);
+  }
+}
+
 @media (max-width: 820px) {
   .kerala-border {
     display: none;
@@ -962,6 +1071,11 @@ a {
   .detail-card h3,
   .countdown-panel h3 {
     font-size: 2.15rem;
+  }
+
+  .countdown-title {
+    font-size: 1.9rem;
+    white-space: nowrap;
   }
 
   .closing-note p {

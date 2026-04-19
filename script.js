@@ -4,6 +4,8 @@ const openInvite = document.querySelector("#openInvite");
 const flowerRain = document.querySelector(".flower-rain");
 const pageLoader = document.querySelector("#pageLoader");
 const heroImage = document.querySelector(".hero-photo img");
+const countdownPanel = document.querySelector("#countdownPanel");
+const countdownFireworks = document.querySelector("#countdownFireworks");
 const countdownCards = {
   days: document.querySelector("#days").closest("div"),
   hours: document.querySelector("#hours").closest("div"),
@@ -11,6 +13,7 @@ const countdownCards = {
   seconds: document.querySelector("#seconds").closest("div")
 };
 const countdownValues = {};
+let hasPlayedCountdownCelebration = false;
 
 const ceremonyStart = new Date("2026-05-25T11:56:00+05:30");
 const ceremonyEnd = new Date("2026-05-25T12:46:00+05:30");
@@ -146,6 +149,72 @@ function updateCountdown() {
   setCountdownValue("seconds", seconds);
 }
 
+function triggerCountdownCelebration() {
+  if (!countdownPanel || !countdownFireworks || hasPlayedCountdownCelebration) {
+    return;
+  }
+
+  hasPlayedCountdownCelebration = true;
+  countdownFireworks.replaceChildren();
+
+  const bursts = [
+    { x: "14%", y: "26%" },
+    { x: "31%", y: "68%" },
+    { x: "50%", y: "18%" },
+    { x: "66%", y: "60%" },
+    { x: "83%", y: "30%" }
+  ];
+
+  bursts.forEach((position, index) => {
+    const burst = document.createElement("span");
+    burst.className = "firework-burst";
+    burst.style.setProperty("--x", position.x);
+    burst.style.setProperty("--y", position.y);
+    burst.style.animationDelay = `${index * 100}ms`;
+    countdownFireworks.appendChild(burst);
+  });
+
+  countdownPanel.classList.remove("is-celebrating");
+  void countdownPanel.offsetWidth;
+  countdownPanel.classList.add("is-celebrating");
+  countdownFireworks.classList.add("is-active");
+
+  window.setTimeout(() => {
+    countdownFireworks.classList.remove("is-active");
+    countdownPanel.classList.remove("is-celebrating");
+    countdownFireworks.replaceChildren();
+  }, 1400);
+}
+
+function watchCountdownCelebration() {
+  if (!countdownPanel) {
+    return;
+  }
+
+  if (!("IntersectionObserver" in window)) {
+    triggerCountdownCelebration();
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0];
+
+      if (!entry?.isIntersecting || entry.intersectionRatio < 0.45) {
+        return;
+      }
+
+      triggerCountdownCelebration();
+      observer.disconnect();
+    },
+    {
+      threshold: [0.45, 0.65]
+    }
+  );
+
+  observer.observe(countdownPanel);
+}
+
 openInvite.addEventListener("click", revealInvitation);
 
 document.querySelectorAll("[data-calendar]").forEach((button) => {
@@ -159,6 +228,7 @@ document.querySelectorAll("[data-location]").forEach((button) => {
 createFlowers();
 updateCountdown();
 window.setInterval(updateCountdown, 1000);
+watchCountdownCelebration();
 
 window.addEventListener("load", async () => {
   await Promise.all([waitForFonts(), waitForHeroImage()]);
