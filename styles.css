@@ -729,6 +729,13 @@ a {
   text-align: center;
 }
 
+.rsvp-kicker {
+  margin: 8px 0 12px;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
 .rsvp-card p {
   margin: 0 0 24px;
   color: var(--muted);
