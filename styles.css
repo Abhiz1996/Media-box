@@ -1482,10 +1482,64 @@ textarea:focus {
   gap: 16px;
 }
 
+.detail-helper {
+  margin: 0 0 16px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.detail-helper strong {
+  color: var(--ink);
+}
+
 .detail-grid {
   display: grid;
   gap: 12px;
   margin-top: 14px;
+}
+
+.detail-brief-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.detail-brief-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.detail-brief-card strong {
+  color: var(--teal-deep);
+}
+
+.detail-brief-card span {
+  color: var(--muted);
+}
+
+.detail-note-card {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(247, 249, 250, 0.88);
+}
+
+.detail-note-card strong {
+  color: var(--teal-deep);
+}
+
+.detail-note-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
 }
 
 .detail-row {
@@ -1582,6 +1636,7 @@ textarea:focus {
 
 @media (max-width: 760px) {
   .detail-control-grid,
+  .detail-brief-grid,
   .team-inline-form {
     grid-template-columns: 1fr;
   }

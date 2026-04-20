@@ -85,72 +85,6 @@ const FIELD_LABELS = {
   prContactPerson: "Contact Person"
 };
 
-const REQUEST_GROUPS = [
-  {
-    title: "Requester Snapshot",
-    keys: ["employeeName", "department", "category", "socialType", "submittedAt"]
-  },
-  {
-    title: "Social Media Details",
-    keys: [
-      "newCreativeEventName",
-      "newCreativeEventDate",
-      "newCreativeEventTime",
-      "newCreativeLocation",
-      "newCreativeRegistrationLink",
-      "newCreativeDescription",
-      "newCreativeSpeakerDetails",
-      "newCreativePhotoDriveLink",
-      "newCreativeLinkedinProfile",
-      "newCreativePartnerInstitutions",
-      "newCreativeTaggingLinks",
-      "postEventTitle",
-      "postEventDate",
-      "postEventLocation",
-      "postEventPhotoDriveLink",
-      "postEventTaggingDetails",
-      "externalEventName",
-      "externalPartnerOrganisation",
-      "externalRegistrationLink",
-      "externalEventDate",
-      "externalEventLocation",
-      "externalCreativeToBePublished",
-      "externalTaggingLinks"
-    ]
-  },
-  {
-    title: "PR Details",
-    keys: [
-      "prEventAnnouncement",
-      "prWhoIsInvolved",
-      "prWhen",
-      "prWhere",
-      "prWhySignificant",
-      "prKeyHighlights",
-      "prNotableSpeakers",
-      "prBackgroundContext",
-      "prQuotes",
-      "prTestimonials",
-      "prFollowUpEvents",
-      "prMoreInformation",
-      "prMediaAssets",
-      "prCaptions",
-      "prContactPerson"
-    ]
-  },
-  {
-    title: "Achievement Details",
-    keys: [
-      "achievementStartupName",
-      "achievementDescription",
-      "achievementPhotos",
-      "achievementLogos",
-      "achievementTaggingLinks",
-      "achievementContactDetails"
-    ]
-  }
-];
-
 const loginShell = document.querySelector("#loginShell");
 const dashboardApp = document.querySelector("#dashboardApp");
 const loginForm = document.querySelector("#loginForm");
@@ -647,54 +581,43 @@ function renderPlannerList(tasks) {
   tasks.forEach((task) => plannerList.appendChild(buildPlannerCard(task)));
 }
 
-function buildDetailGroups(task) {
-  return REQUEST_GROUPS
-    .map((group) => {
-      const rows = group.keys
-        .filter((key) => task.payload?.[key])
-        .map((key) => {
-          const value = key.toLowerCase().includes("date") || key === "submittedAt" || key === "prWhen"
-            ? formatDate(task.payload[key])
-            : task.payload[key];
+function buildCompactBrief(task) {
+  const payload = task.payload || {};
+  const briefItems = [
+    ["Requester", task.requesterName],
+    ["Department", task.department],
+    ["Category", task.category],
+    ["Type", task.socialType || task.category],
+    ["Submitted", formatDate(task.createdAt)],
+    ["Due", task.dueText ? formatDate(task.dueText) : "Not provided"]
+  ];
 
-          return `
-            <div class="detail-row">
-              <strong>${sanitizeText(FIELD_LABELS[key] || key)}</strong>
-              ${isLikelyUrl(value)
-                ? `<a href="${sanitizeText(value)}" target="_blank" rel="noopener noreferrer">${sanitizeText(value)}</a>`
-                : `<span>${sanitizeText(value)}</span>`
-              }
-            </div>
-          `;
-        })
-        .join("");
+  const importantNote = (
+    payload.newCreativeDescription
+    || payload.prEventAnnouncement
+    || payload.prWhySignificant
+    || payload.achievementDescription
+    || payload.postEventTaggingDetails
+    || "No extra note was added in the form."
+  );
 
-      if (!rows) {
-        return "";
-      }
-
-      return `
-        <section class="detail-section">
-          <h4>${sanitizeText(group.title)}</h4>
-          <div class="detail-grid">${rows}</div>
-        </section>
-      `;
-    })
-    .join("");
-}
-
-function addTeam(teamName) {
-  const cleanName = teamName.trim();
-
-  if (!cleanName) {
-    return;
-  }
-
-  const teams = getTeams();
-
-  if (!teams.includes(cleanName)) {
-    setTeams(teams.concat(cleanName));
-  }
+  return `
+    <section class="detail-section">
+      <h4>Request Brief</h4>
+      <div class="detail-brief-grid">
+        ${briefItems.map(([label, value]) => `
+          <div class="detail-brief-card">
+            <strong>${sanitizeText(label)}</strong>
+            <span>${sanitizeText(value)}</span>
+          </div>
+        `).join("")}
+      </div>
+      <div class="detail-note-card">
+        <strong>Brief note</strong>
+        <p>${sanitizeText(importantNote)}</p>
+      </div>
+    </section>
+  `;
 }
 
 function updateTask(taskId, updates) {
@@ -808,6 +731,10 @@ function renderPlannerDetail(task) {
 
     <section class="detail-section">
       <h4>Workflow Controls</h4>
+      <p class="detail-helper">
+        Active items can be updated while they are in <strong>Will Do</strong> or <strong>Ongoing</strong>.
+        Once you set the status to <strong>Completed</strong>, the request is closed from the active planner and moved to the monthly repository below.
+      </p>
       <div class="detail-control-grid">
         <label class="field">
           <span>Status</span>
@@ -836,15 +763,7 @@ function renderPlannerDetail(task) {
       </div>
     </section>
 
-    <section class="detail-section">
-      <h4>Team Setup</h4>
-      <div class="team-inline-form">
-        <input type="text" id="newTeamInput" placeholder="Add a new team name">
-        <button class="ghost-button" type="button" id="addTeamButton">Add Team</button>
-      </div>
-    </section>
-
-    ${buildDetailGroups(task)}
+    ${buildCompactBrief(task)}
   `;
 
   document.querySelector("#saveTaskButton").addEventListener("click", () => {
@@ -854,11 +773,6 @@ function renderPlannerDetail(task) {
       assignee: document.querySelector("#detailAssignee").value.trim() || "To be assigned",
       notes: document.querySelector("#detailNotes").value.trim()
     });
-  });
-
-  document.querySelector("#addTeamButton").addEventListener("click", () => {
-    addTeam(document.querySelector("#newTeamInput").value);
-    renderPlanner();
   });
 }
 
