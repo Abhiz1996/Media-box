@@ -453,6 +453,7 @@ function saveSubmissionLocally(payload) {
     priority: payload.category === "PR" ? "High Touch" : "Standard",
     summary: createTaskSummary(payload),
     createdAt: payload.submittedAt,
+    completedAt: "",
     dueText: payload.newCreativeEventDate || payload.postEventDate || payload.externalEventDate || payload.prWhen || "",
     notes: "",
     payload: request

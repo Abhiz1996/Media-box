@@ -118,10 +118,9 @@
             <label class="filter-card">
               <span>Status</span>
               <select id="statusFilter">
-                <option value="">All activity states</option>
+                <option value="">All active states</option>
                 <option>Will Do</option>
                 <option>Ongoing</option>
-                <option>Completed</option>
               </select>
             </label>
           </div>
@@ -138,6 +137,16 @@
               <div class="planner-badge" id="plannerVisibleCount">0 items</div>
             </div>
 
+            <section class="active-requests-panel">
+              <div class="active-requests-header">
+                <div>
+                  <p class="eyebrow">Active Requests</p>
+                  <h4>Open a workflow workspace in a new tab</h4>
+                </div>
+              </div>
+              <div class="active-request-tabs" id="activeRequestTabs"></div>
+            </section>
+
             <div class="digest-board hidden" id="digestBoard"></div>
             <div class="planner-list" id="plannerList"></div>
           </section>
@@ -146,6 +155,19 @@
             <div id="plannerDetail"></div>
           </aside>
         </div>
+
+        <section class="panel archive-panel">
+          <div class="section-heading">
+            <p class="eyebrow">Completed Repository</p>
+            <h2>Recent completed work</h2>
+            <p>
+              Completed items are grouped month-wise with only the essential details.
+              The page keeps the latest two months and automatically drops older records from view.
+            </p>
+          </div>
+
+          <div class="archive-groups" id="archiveGroups"></div>
+        </section>
       </section>
     </main>
 

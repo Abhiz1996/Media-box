@@ -162,9 +162,11 @@ const plannerEyebrow = document.querySelector("#plannerEyebrow");
 const plannerHeading = document.querySelector("#plannerHeading");
 const plannerCopy = document.querySelector("#plannerCopy");
 const plannerVisibleCount = document.querySelector("#plannerVisibleCount");
+const activeRequestTabs = document.querySelector("#activeRequestTabs");
 const digestBoard = document.querySelector("#digestBoard");
 const plannerList = document.querySelector("#plannerList");
 const plannerDetail = document.querySelector("#plannerDetail");
+const archiveGroups = document.querySelector("#archiveGroups");
 
 const filters = {
   search: document.querySelector("#searchInput"),
@@ -174,6 +176,17 @@ const filters = {
 
 let activeTab = "social";
 let selectedTaskId = "";
+const urlState = new URL(window.location.href);
+const initialTaskId = urlState.searchParams.get("task") || "";
+const initialTab = urlState.searchParams.get("tab") || "";
+
+if (TAB_CONFIG[initialTab]) {
+  activeTab = initialTab;
+}
+
+if (initialTaskId) {
+  selectedTaskId = initialTaskId;
+}
 
 function readJsonStorage(key, fallback) {
   try {
@@ -238,6 +251,19 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("en-IN", {
     dateStyle: "medium",
     ...(String(value).includes("T") ? { timeStyle: "short" } : {})
+  }).format(date);
+}
+
+function formatMonthYear(value) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Unknown Month";
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    month: "long",
+    year: "numeric"
   }).format(date);
 }
 
@@ -327,6 +353,7 @@ function ensureSeedData() {
         createdAt: timestamp,
         dueText: "",
         notes: "Published on LinkedIn and archived in the deck.",
+        completedAt: timestamp,
         payload: {
           employeeName: "Riya",
           department: "Incubation",
@@ -383,6 +410,10 @@ function getVisibleTasks() {
   const searchTerm = filters.search.value.trim().toLowerCase();
 
   return tasks.filter((task) => {
+    if (task.status === "Completed") {
+      return false;
+    }
+
     const matchesSearch = !searchTerm || [
       task.title,
       task.requesterName,
@@ -402,6 +433,31 @@ function getLiveActivities() {
   return getTasks().filter((task) => task.status !== "Completed");
 }
 
+function getActiveTasksForCurrentTab() {
+  return getTabTasks(activeTab).filter((task) => task.status !== "Completed");
+}
+
+function openWorkflowTab(taskId) {
+  const targetUrl = new URL(window.location.href);
+  targetUrl.searchParams.set("tab", activeTab);
+  targetUrl.searchParams.set("task", taskId);
+  window.open(targetUrl.toString(), "_blank", "noopener,noreferrer");
+}
+
+function syncUrlState() {
+  const nextUrl = new URL(window.location.href);
+
+  if (selectedTaskId) {
+    nextUrl.searchParams.set("tab", activeTab);
+    nextUrl.searchParams.set("task", selectedTaskId);
+  } else {
+    nextUrl.searchParams.delete("task");
+    nextUrl.searchParams.set("tab", activeTab);
+  }
+
+  window.history.replaceState({}, "", nextUrl.toString());
+}
+
 function renderTabs() {
   const socialCount = getTabTasks("social").length;
   const prCount = getTabTasks("pr").length;
@@ -415,6 +471,32 @@ function renderTabs() {
 
   plannerTabs.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.plannerTab === activeTab);
+  });
+}
+
+function renderActiveRequestTabs() {
+  const activeTasks = getActiveTasksForCurrentTab();
+  activeRequestTabs.innerHTML = "";
+
+  if (!activeTasks.length) {
+    activeRequestTabs.innerHTML = `
+      <div class="planner-empty active-requests-empty">
+        <p>No open requests in this category right now.</p>
+      </div>
+    `;
+    return;
+  }
+
+  activeTasks.forEach((task) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "active-request-tab";
+    button.innerHTML = `
+      <span>${sanitizeText(task.title)}</span>
+      <small>${sanitizeText(task.status)} · ${sanitizeText(task.team)}</small>
+    `;
+    button.addEventListener("click", () => openWorkflowTab(task.id));
+    activeRequestTabs.appendChild(button);
   });
 }
 
@@ -491,6 +573,10 @@ function buildPlannerCard(task) {
     renderPlanner();
   });
 
+  card.addEventListener("dblclick", () => {
+    openWorkflowTab(task.id);
+  });
+
   return card;
 }
 
@@ -543,6 +629,7 @@ function renderPlannerList(tasks) {
   plannerVisibleCount.textContent = `${tasks.length} item${tasks.length === 1 ? "" : "s"}`;
 
   renderDigestBoard();
+  renderActiveRequestTabs();
 
   plannerList.innerHTML = "";
 
@@ -611,14 +698,83 @@ function addTeam(teamName) {
 }
 
 function updateTask(taskId, updates) {
+  const hasStatusUpdate = Object.prototype.hasOwnProperty.call(updates, "status");
   const tasks = getTasks().map((task) => (
     task.id === taskId
-      ? { ...task, ...updates }
+      ? {
+          ...task,
+          ...updates,
+          completedAt: hasStatusUpdate
+            ? updates.status === "Completed"
+              ? task.completedAt || new Date().toISOString()
+              : ""
+            : task.completedAt || ""
+        }
       : task
   ));
 
   setTasks(tasks);
   renderPlanner();
+}
+
+function getRecentArchiveGroups() {
+  const now = new Date();
+  const cutoff = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const completedTasks = getTasks()
+    .filter((task) => task.status === "Completed" && task.completedAt)
+    .filter((task) => {
+      const completedDate = new Date(task.completedAt);
+      return !Number.isNaN(completedDate.getTime()) && completedDate >= cutoff;
+    })
+    .sort((left, right) => new Date(right.completedAt) - new Date(left.completedAt));
+
+  const grouped = completedTasks.reduce((accumulator, task) => {
+    const monthKey = formatMonthYear(task.completedAt);
+    if (!accumulator[monthKey]) {
+      accumulator[monthKey] = [];
+    }
+    accumulator[monthKey].push(task);
+    return accumulator;
+  }, {});
+
+  return Object.entries(grouped).slice(0, 2);
+}
+
+function renderArchive() {
+  const archive = getRecentArchiveGroups();
+  archiveGroups.innerHTML = "";
+
+  if (!archive.length) {
+    archiveGroups.innerHTML = `
+      <section class="planner-empty">
+        <p class="eyebrow">No Archived Items Yet</p>
+        <h3>Completed requests will appear here once the team marks them done.</h3>
+        <p>The archive keeps a compact monthly record for the latest two months only.</p>
+      </section>
+    `;
+    return;
+  }
+
+  archive.forEach(([monthLabel, tasks]) => {
+    const group = document.createElement("section");
+    group.className = "archive-group";
+    group.innerHTML = `
+      <div class="archive-group-header">
+        <h3>${sanitizeText(monthLabel)}</h3>
+        <span>${tasks.length} item${tasks.length === 1 ? "" : "s"}</span>
+      </div>
+      <div class="archive-list">
+        ${tasks.map((task) => `
+          <article class="archive-card">
+            <strong>${sanitizeText(task.title)}</strong>
+            <p>${sanitizeText(task.category)} · ${sanitizeText(task.requesterName)} · ${sanitizeText(task.department)}</p>
+            <span>${sanitizeText(formatDate(task.completedAt))}</span>
+          </article>
+        `).join("")}
+      </div>
+    `;
+    archiveGroups.appendChild(group);
+  });
 }
 
 function renderPlannerDetail(task) {
@@ -713,9 +869,11 @@ function renderPlanner() {
 
   const visibleTasks = getVisibleTasks();
   const activeTask = ensureSelectedTask(visibleTasks);
+  syncUrlState();
 
   renderPlannerList(visibleTasks);
   renderPlannerDetail(activeTask);
+  renderArchive();
 }
 
 plannerTabs.forEach((button) => {
