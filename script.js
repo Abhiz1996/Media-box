@@ -1,246 +1,522 @@
-const introScreen = document.querySelector("#introScreen");
-const invitation = document.querySelector("#invitation");
-const openInvite = document.querySelector("#openInvite");
-const flowerRain = document.querySelector(".flower-rain");
-const pageLoader = document.querySelector("#pageLoader");
-const heroImage = document.querySelector(".hero-photo img");
-const countdownPanel = document.querySelector("#countdownPanel");
-const countdownFireworks = document.querySelector("#countdownFireworks");
-const countdownCards = {
-  days: document.querySelector("#days").closest("div"),
-  hours: document.querySelector("#hours").closest("div"),
-  minutes: document.querySelector("#minutes").closest("div"),
-  seconds: document.querySelector("#seconds").closest("div")
-};
-const countdownValues = {};
-let hasPlayedCountdownCelebration = false;
-
-const ceremonyStart = new Date("2026-05-25T11:56:00+05:30");
-const ceremonyEnd = new Date("2026-05-25T12:46:00+05:30");
-const receptionStart = new Date("2026-05-28T17:30:00+05:30");
-const receptionEnd = new Date("2026-05-28T21:30:00+05:30");
-
-const events = {
-  ceremony: {
-    title: "Wedding Ceremony - Ananthu & Anagha",
-    description: "Join us for the wedding ceremony of Ananthu and Anagha. Muhurtham: 11:56 am - 12:46 pm",
-    location: "Qatar Auditorium, Thirunavaya, Malappuram",
-    start: ceremonyStart,
-    end: ceremonyEnd,
-    file: "wedding-ceremony.ics"
-  },
-  reception: {
-    title: "Bride Groom Reception - Ananthu & Anagha",
-    description: "Join us for the bride groom reception of Ananthu and Anagha.",
-    location: "Comet Hall, Al-Saj, Kazhakkoottam, Thiruvananthapuram",
-    start: receptionStart,
-    end: receptionEnd,
-    file: "wedding-reception.ics"
-  }
+const APP_CONFIG = {
+  submissionEndpoint: "",
+  companyName: "Media Box",
+  timezone: "Asia/Kolkata"
 };
 
-function createFlowers() {
-  for (let index = 0; index < 14; index += 1) {
-    const flower = document.createElement("span");
-    flower.className = index % 3 === 0 ? "falling-flower golden-flower" : "falling-flower jasmine-flower";
-    flower.style.left = `${(index + 1) * 7}%`;
-    flower.style.animationDuration = `${12 + index * 1.2}s`;
-    flower.style.animationDelay = `${index * -1.4}s`;
-    flower.style.setProperty("--flower-scale", `${0.78 + (index % 4) * 0.1}`);
-    flowerRain.appendChild(flower);
+const STORAGE_KEYS = {
+  requests: "mediaBoxRequests",
+  tasks: "mediaBoxWorkflowTasks",
+  teams: "mediaBoxTeams"
+};
+
+const form = document.querySelector("#mediaRequestForm");
+const summarySection = document.querySelector("#summarySection");
+const summaryCard = document.querySelector("#summaryCard");
+const printSummaryButtons = Array.from(document.querySelectorAll(".print-summary-button"));
+const statusMessages = Array.from(document.querySelectorAll(".status-message"));
+
+const categoryInputs = Array.from(document.querySelectorAll('input[name="category"]'));
+const socialTypeInputs = Array.from(document.querySelectorAll('input[name="socialType"]'));
+const socialTypeSections = Array.from(document.querySelectorAll("[data-social-branch]"));
+const stepPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
+const progressSteps = Array.from(document.querySelectorAll("[data-progress-step]"));
+
+let currentStep = "intro";
+
+function readJsonStorage(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+  } catch (error) {
+    return fallback;
   }
 }
 
-function hidePageLoader() {
-  if (!pageLoader) {
+function writeJsonStorage(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function ensureDefaultTeams() {
+  const teams = readJsonStorage(STORAGE_KEYS.teams, []);
+
+  if (teams.length) {
     return;
   }
 
-  pageLoader.classList.add("is-hidden");
-  document.body.classList.remove("is-loading");
-
-  window.setTimeout(() => {
-    pageLoader.setAttribute("hidden", "");
-  }, 450);
+  writeJsonStorage(STORAGE_KEYS.teams, [
+    "Design Team",
+    "Content Team",
+    "PR Team",
+    "Social Media Team"
+  ]);
 }
 
-function waitForHeroImage() {
-  if (!heroImage || heroImage.complete) {
-    return Promise.resolve();
-  }
+function selectedValue(name) {
+  return form.querySelector(`input[name="${name}"]:checked`)?.value || "";
+}
 
-  return new Promise((resolve) => {
-    heroImage.addEventListener("load", resolve, { once: true });
-    heroImage.addEventListener("error", resolve, { once: true });
+function setStatus(message, isError = false) {
+  statusMessages.forEach((node) => {
+    node.textContent = message;
+    node.classList.toggle("is-error", isError);
   });
 }
 
-function waitForFonts() {
-  if (!document.fonts || typeof document.fonts.ready?.then !== "function") {
-    return Promise.resolve();
-  }
-
-  return document.fonts.ready.catch(() => undefined);
+function updateChoiceCards() {
+  document.querySelectorAll(".choice-card").forEach((card) => {
+    const input = card.querySelector("input");
+    card.classList.toggle("is-selected", Boolean(input?.checked));
+  });
 }
 
-function revealInvitation() {
-  introScreen.classList.add("is-opening");
-  introScreen.classList.add("is-open");
-  invitation.classList.add("is-visible");
-  invitation.setAttribute("aria-hidden", "false");
-  window.setTimeout(() => {
-    introScreen.setAttribute("hidden", "");
-  }, 900);
-}
-
-function formatGoogleCalendarDate(date) {
-  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-}
-
-function openGoogleCalendar(eventName) {
-  const eventData = events[eventName];
-  const url = new URL("https://calendar.google.com/calendar/render");
-
-  url.searchParams.set("action", "TEMPLATE");
-  url.searchParams.set("text", eventData.title);
-  url.searchParams.set("details", eventData.description);
-  url.searchParams.set("location", eventData.location);
-  url.searchParams.set(
-    "dates",
-    `${formatGoogleCalendarDate(eventData.start)}/${formatGoogleCalendarDate(eventData.end)}`
-  );
-
-  window.open(url.toString(), "_blank", "noopener,noreferrer");
-}
-
-function openLocation(query) {
-  const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
-}
-
-function setCountdownValue(unit, value) {
-  const paddedValue = String(value).padStart(2, "0");
-  const element = document.querySelector(`#${unit}`);
-  const card = countdownCards[unit];
-
-  if (countdownValues[unit] === paddedValue) {
+function clearHiddenSectionFields(section) {
+  if (!section) {
     return;
   }
 
-  countdownValues[unit] = paddedValue;
-  element.textContent = paddedValue;
-  card.classList.remove("is-flipping");
-  void card.offsetWidth;
-  card.classList.add("is-flipping");
-}
-
-function updateCountdown() {
-  const now = new Date();
-  const remaining = Math.max(ceremonyStart.getTime() - now.getTime(), 0);
-  const totalSeconds = Math.floor(remaining / 1000);
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  setCountdownValue("days", days);
-  setCountdownValue("hours", hours);
-  setCountdownValue("minutes", minutes);
-  setCountdownValue("seconds", seconds);
-}
-
-function triggerCountdownCelebration() {
-  if (!countdownPanel || !countdownFireworks || hasPlayedCountdownCelebration) {
-    return;
-  }
-
-  hasPlayedCountdownCelebration = true;
-  countdownFireworks.replaceChildren();
-
-  const bursts = [
-    { x: "12%", y: "24%" },
-    { x: "26%", y: "64%" },
-    { x: "43%", y: "22%" },
-    { x: "57%", y: "70%" },
-    { x: "73%", y: "28%" },
-    { x: "86%", y: "54%" }
-  ];
-  const sparkPalette = ["#ffd663", "#ff9a7c", "#f7e7a5", "#7fb8c8", "#f4b169", "#e87e6b"];
-
-  bursts.forEach((position, index) => {
-    const burst = document.createElement("span");
-    burst.className = "firework-burst";
-    burst.style.setProperty("--x", position.x);
-    burst.style.setProperty("--y", position.y);
-
-    for (let sparkIndex = 0; sparkIndex < 12; sparkIndex += 1) {
-      const spark = document.createElement("i");
-      spark.style.setProperty("--angle", `${sparkIndex * 30}deg`);
-      spark.style.setProperty("--spark-color", sparkPalette[(index + sparkIndex) % sparkPalette.length]);
-      spark.style.animationDelay = `${index * 160 + sparkIndex * 18}ms`;
-      burst.appendChild(spark);
+  section.querySelectorAll("input, textarea, select").forEach((field) => {
+    if (field.type === "radio" || field.type === "checkbox") {
+      field.checked = false;
+      return;
     }
 
-    countdownFireworks.appendChild(burst);
+    field.value = "";
   });
-
-  countdownPanel.classList.remove("is-celebrating");
-  void countdownPanel.offsetWidth;
-  countdownPanel.classList.add("is-celebrating");
-  countdownFireworks.classList.add("is-active");
-
-  window.setTimeout(() => {
-    countdownFireworks.classList.remove("is-active");
-    countdownPanel.classList.remove("is-celebrating");
-    countdownFireworks.replaceChildren();
-  }, 2600);
 }
 
-function watchCountdownCelebration() {
-  if (!countdownPanel) {
+function showStep(stepName) {
+  currentStep = stepName;
+  stepPanels.forEach((panel) => {
+    panel.classList.toggle("hidden", panel.dataset.stepPanel !== stepName);
+  });
+  updateProgress(stepName);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function updateProgress(stepName) {
+  const order = ["intro", "social-type", "details", "summary"];
+  const mappedStep = (
+    stepName === "social-details"
+    || stepName === "pr"
+    || stepName === "achievements"
+    || stepName === "details-empty"
+  )
+    ? "details"
+    : stepName;
+
+  const activeIndex = order.indexOf(mappedStep);
+
+  progressSteps.forEach((node) => {
+    const nodeIndex = order.indexOf(node.dataset.progressStep);
+    node.classList.toggle("is-active", nodeIndex === activeIndex);
+    node.classList.toggle("is-complete", nodeIndex < activeIndex);
+  });
+}
+
+function toggleCategoryBranches() {
+  const category = selectedValue("category");
+
+  if (category !== "Social Media") {
+    socialTypeInputs.forEach((input) => {
+      input.checked = false;
+    });
+    socialTypeSections.forEach((section) => {
+      section.classList.add("hidden");
+      clearHiddenSectionFields(section);
+    });
+  }
+
+  updateChoiceCards();
+}
+
+function toggleSocialTypeBranches() {
+  const socialType = selectedValue("socialType");
+
+  socialTypeSections.forEach((section) => {
+    const isActive = section.dataset.socialBranch === socialType;
+    section.classList.toggle("hidden", !isActive);
+
+    if (!isActive) {
+      clearHiddenSectionFields(section);
+    }
+  });
+
+  updateChoiceCards();
+}
+
+function goForwardFromIntro() {
+  const category = selectedValue("category");
+
+  if (category === "Social Media") {
+    showStep("social-type");
     return;
   }
 
-  if (!("IntersectionObserver" in window)) {
-    triggerCountdownCelebration();
+  if (category === "PR") {
+    showStep("pr");
     return;
   }
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      const entry = entries[0];
+  if (category === "Achievements") {
+    showStep("achievements");
+    return;
+  }
 
-      if (!entry?.isIntersecting || entry.intersectionRatio < 0.45) {
-        return;
-      }
+  showStep("details-empty");
+}
 
-      triggerCountdownCelebration();
-      observer.disconnect();
-    },
+function goForwardFromSocialType() {
+  const socialType = selectedValue("socialType");
+
+  if (!socialType) {
+    showStep("details-empty");
+    return;
+  }
+
+  showStep("social-details");
+}
+
+function formatDateValue(value) {
+  if (!value) {
+    return "Not provided";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "long",
+    ...(value.includes("T") ? { timeStyle: "short", timeZone: APP_CONFIG.timezone } : {})
+  }).format(date);
+}
+
+function isLikelyUrl(value) {
+  return /^https?:\/\//i.test(value);
+}
+
+function sanitizeText(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function getSummarySections(payload) {
+  const sections = [
     {
-      threshold: [0.45, 0.65]
+      title: "Requester Information",
+      rows: [
+        ["Name", payload.employeeName || "Not provided"],
+        ["Department", payload.department || "Not provided"],
+        ["Category", payload.category || "To be classified"],
+        ["Social Media Type", payload.socialType || "Not provided"]
+      ]
     }
-  );
+  ];
 
-  observer.observe(countdownPanel);
+  if (payload.category === "Social Media") {
+    const socialTitle = payload.socialType || "Social Media Request";
+    let rows = [["Social Media Type", payload.socialType || "Not provided"]];
+
+    if (payload.socialType === "New Creative") {
+      rows = rows.concat([
+        ["Name of event", payload.newCreativeEventName],
+        ["Date of event", formatDateValue(payload.newCreativeEventDate)],
+        ["Time", payload.newCreativeEventTime || "Not provided"],
+        ["Location", payload.newCreativeLocation],
+        ["Registration Link", payload.newCreativeRegistrationLink],
+        ["Brief description of the event", payload.newCreativeDescription],
+        ["Speaker details", payload.newCreativeSpeakerDetails],
+        ["Drive link to photographs", payload.newCreativePhotoDriveLink],
+        ["LinkedIn Profile", payload.newCreativeLinkedinProfile],
+        ["Partner institutions and logos", payload.newCreativePartnerInstitutions],
+        ["Tagging links", payload.newCreativeTaggingLinks]
+      ]);
+    }
+
+    if (payload.socialType === "Post Event") {
+      rows = rows.concat([
+        ["Title", payload.postEventTitle],
+        ["Date", formatDateValue(payload.postEventDate)],
+        ["Location", payload.postEventLocation],
+        ["Drive link to photos", payload.postEventPhotoDriveLink],
+        ["Tagging details", payload.postEventTaggingDetails]
+      ]);
+    }
+
+    if (payload.socialType === "External or Partner Event") {
+      rows = rows.concat([
+        ["Name of event", payload.externalEventName],
+        ["Partner organisation", payload.externalPartnerOrganisation],
+        ["Registration Link", payload.externalRegistrationLink],
+        ["Date", formatDateValue(payload.externalEventDate)],
+        ["Location", payload.externalEventLocation],
+        ["Creative to be published", payload.externalCreativeToBePublished],
+        ["Tagging links", payload.externalTaggingLinks]
+      ]);
+    }
+
+    sections.push({ title: socialTitle, rows });
+  }
+
+  if (payload.category === "Achievements") {
+    sections.push({
+      title: "Achievement Details",
+      rows: [
+        ["Startups / Startup mission", payload.achievementStartupName],
+        ["Brief description", payload.achievementDescription],
+        ["Photos if any", payload.achievementPhotos],
+        ["Logos to be included", payload.achievementLogos],
+        ["Tagging links", payload.achievementTaggingLinks],
+        ["Contact details of startup", payload.achievementContactDetails]
+      ]
+    });
+  }
+
+  if (payload.category === "PR") {
+    sections.push({
+      title: "Press Release Details",
+      rows: [
+        ["What is the event or announcement?", payload.prEventAnnouncement],
+        ["Who is involved?", payload.prWhoIsInvolved],
+        ["When will / did the event take place?", formatDateValue(payload.prWhen)],
+        ["Where is the event being held?", payload.prWhere],
+        ["Why is this event or announcement significant?", payload.prWhySignificant],
+        ["Key highlights or major announcements", payload.prKeyHighlights],
+        ["Notable speakers or guests", payload.prNotableSpeakers],
+        ["Background or context", payload.prBackgroundContext],
+        ["Quotes from key individuals", payload.prQuotes],
+        ["Testimonials or feedback from attendees", payload.prTestimonials],
+        ["Follow-up events or next steps", payload.prFollowUpEvents],
+        ["Where can readers find more information?", payload.prMoreInformation],
+        ["Media uploads / links", payload.prMediaAssets],
+        ["Captions for the visual content", payload.prCaptions],
+        ["Contact for review and POC", payload.prContactPerson]
+      ]
+    });
+  }
+
+  if (!payload.category) {
+    sections.push({
+      title: "Open Request Notes",
+      rows: [
+        ["Status", "Submitted without category"],
+        ["Next step", "Team can classify this in the workflow desk"]
+      ]
+    });
+  }
+
+  return sections;
 }
 
-openInvite.addEventListener("click", revealInvitation);
+function buildSummaryMarkup(payload) {
+  const sections = getSummarySections(payload);
+  const submittedAt = new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "long",
+    timeStyle: "short",
+    timeZone: APP_CONFIG.timezone
+  }).format(new Date(payload.submittedAt));
 
-document.querySelectorAll("[data-calendar]").forEach((button) => {
-  button.addEventListener("click", () => openGoogleCalendar(button.dataset.calendar));
+  const blocks = sections
+    .map((section) => {
+      const rows = section.rows
+        .filter(([, value]) => value && value !== "Not provided")
+        .map(([label, value]) => {
+          const safeLabel = sanitizeText(label);
+          const displayValue = sanitizeText(value);
+          const renderedValue = isLikelyUrl(value)
+            ? `<a href="${displayValue}" target="_blank" rel="noopener noreferrer">${displayValue}</a>`
+            : `<span>${displayValue.replaceAll("\n", "<br>")}</span>`;
+
+          return `
+            <div class="summary-row">
+              <strong>${safeLabel}</strong>
+              ${renderedValue}
+            </div>
+          `;
+        })
+        .join("");
+
+      return `
+        <section class="summary-block">
+          <h4>${sanitizeText(section.title)}</h4>
+          <div class="summary-list">${rows || '<p class="summary-note">No extra information added yet.</p>'}</div>
+        </section>
+      `;
+    })
+    .join("");
+
+  return `
+    <header class="summary-header">
+      <div>
+        <p class="eyebrow">Questionnaire Response</p>
+        <h3>${sanitizeText(APP_CONFIG.companyName)} Submission</h3>
+      </div>
+      <div class="summary-meta">
+        <p><strong>Submitted:</strong> ${sanitizeText(submittedAt)}</p>
+        <p><strong>Department:</strong> ${sanitizeText(payload.department || "Not provided")}</p>
+      </div>
+    </header>
+    <div class="summary-grid">${blocks}</div>
+  `;
+}
+
+function formDataToObject() {
+  const data = new FormData(form);
+  const payload = Object.fromEntries(data.entries());
+  payload.submittedAt = new Date().toISOString();
+  return payload;
+}
+
+function createTaskTitle(payload) {
+  if (payload.category === "PR") {
+    return payload.prEventAnnouncement || "New PR request";
+  }
+
+  if (payload.category === "Achievements") {
+    return payload.achievementStartupName || "New achievement request";
+  }
+
+  if (payload.category === "Social Media") {
+    return (
+      payload.newCreativeEventName
+      || payload.postEventTitle
+      || payload.externalEventName
+      || payload.socialType
+      || "New social media request"
+    );
+  }
+
+  return payload.employeeName
+    ? `Open request from ${payload.employeeName}`
+    : "Unclassified media request";
+}
+
+function createTaskSummary(payload) {
+  return (
+    payload.newCreativeDescription
+    || payload.achievementDescription
+    || payload.prWhySignificant
+    || payload.prEventAnnouncement
+    || payload.postEventTaggingDetails
+    || "Awaiting more details"
+  );
+}
+
+function saveSubmissionLocally(payload) {
+  const requests = readJsonStorage(STORAGE_KEYS.requests, []);
+  const tasks = readJsonStorage(STORAGE_KEYS.tasks, []);
+  const requestId = `REQ-${Date.now()}`;
+  const request = { ...payload, id: requestId };
+
+  requests.unshift(request);
+  tasks.unshift({
+    id: `TASK-${Date.now()}`,
+    requestId,
+    title: createTaskTitle(payload),
+    category: payload.category || "Unclassified",
+    socialType: payload.socialType || "",
+    department: payload.department || "Unassigned",
+    requesterName: payload.employeeName || "Unknown requester",
+    status: "Will Do",
+    team: payload.category === "PR" ? "PR Team" : "Content Team",
+    assignee: "To be assigned",
+    priority: payload.category === "PR" ? "High Touch" : "Standard",
+    summary: createTaskSummary(payload),
+    createdAt: payload.submittedAt,
+    dueText: payload.newCreativeEventDate || payload.postEventDate || payload.externalEventDate || payload.prWhen || "",
+    notes: "",
+    payload: request
+  });
+
+  writeJsonStorage(STORAGE_KEYS.requests, requests);
+  writeJsonStorage(STORAGE_KEYS.tasks, tasks);
+}
+
+async function submitToEndpoint(payload) {
+  if (!APP_CONFIG.submissionEndpoint) {
+    return { mode: "preview-only" };
+  }
+
+  const response = await fetch(APP_CONFIG.submissionEndpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Submission failed with status ${response.status}.`);
+  }
+
+  return response.json().catch(() => ({ mode: "connected" }));
+}
+
+categoryInputs.forEach((input) => {
+  input.addEventListener("change", () => {
+    toggleCategoryBranches();
+    if (currentStep !== "intro") {
+      showStep("intro");
+    }
+  });
 });
 
-document.querySelectorAll("[data-location]").forEach((button) => {
-  button.addEventListener("click", () => openLocation(button.dataset.location));
+socialTypeInputs.forEach((input) => {
+  input.addEventListener("change", toggleSocialTypeBranches);
 });
 
-createFlowers();
-updateCountdown();
-window.setInterval(updateCountdown, 1000);
-watchCountdownCelebration();
+document.querySelector("#introNextButton").addEventListener("click", goForwardFromIntro);
+document.querySelector("#socialTypeNextButton").addEventListener("click", goForwardFromSocialType);
 
-window.addEventListener("load", async () => {
-  await Promise.all([waitForFonts(), waitForHeroImage()]);
-  hidePageLoader();
+document.querySelectorAll("[data-go-step]").forEach((button) => {
+  button.addEventListener("click", () => {
+    showStep(button.dataset.goStep);
+  });
 });
+
+printSummaryButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    window.print();
+  });
+});
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  setStatus("");
+
+  const payload = formDataToObject();
+  saveSubmissionLocally(payload);
+
+  summaryCard.innerHTML = buildSummaryMarkup(payload);
+  summarySection.classList.remove("hidden");
+  updateProgress("summary");
+  printSummaryButtons.forEach((button) => {
+    button.disabled = false;
+  });
+
+  try {
+    const result = await submitToEndpoint(payload);
+
+    if (result?.mode === "preview-only") {
+      setStatus("Summary generated and request saved locally to the workflow desk.");
+    } else {
+      setStatus("Submission sent successfully and mirrored in the workflow desk.");
+    }
+  } catch (error) {
+    setStatus(`${error.message} The summary is still available below and the local workflow card has been created.`, true);
+  }
+
+  summarySection.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+ensureDefaultTeams();
+toggleCategoryBranches();
+toggleSocialTypeBranches();
+updateChoiceCards();
+showStep("intro");
