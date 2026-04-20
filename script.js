@@ -1,7 +1,13 @@
 const APP_CONFIG = {
   submissionEndpoint: "",
-  companyName: "Your Company",
+  companyName: "Media Box",
   timezone: "Asia/Kolkata"
+};
+
+const STORAGE_KEYS = {
+  requests: "mediaBoxRequests",
+  tasks: "mediaBoxWorkflowTasks",
+  teams: "mediaBoxTeams"
 };
 
 const form = document.querySelector("#mediaRequestForm");
@@ -12,13 +18,38 @@ const statusMessages = Array.from(document.querySelectorAll(".status-message"));
 
 const categoryInputs = Array.from(document.querySelectorAll('input[name="category"]'));
 const socialTypeInputs = Array.from(document.querySelectorAll('input[name="socialType"]'));
-const prSection = document.querySelector('[data-branch="pr"]');
-const achievementsSection = document.querySelector('[data-branch="achievements"]');
 const socialTypeSections = Array.from(document.querySelectorAll("[data-social-branch]"));
 const stepPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 const progressSteps = Array.from(document.querySelectorAll("[data-progress-step]"));
 
 let currentStep = "intro";
+
+function readJsonStorage(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+  } catch (error) {
+    return fallback;
+  }
+}
+
+function writeJsonStorage(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function ensureDefaultTeams() {
+  const teams = readJsonStorage(STORAGE_KEYS.teams, []);
+
+  if (teams.length) {
+    return;
+  }
+
+  writeJsonStorage(STORAGE_KEYS.teams, [
+    "Design Team",
+    "Content Team",
+    "PR Team",
+    "Social Media Team"
+  ]);
+}
 
 function selectedValue(name) {
   return form.querySelector(`input[name="${name}"]:checked`)?.value || "";
@@ -27,7 +58,7 @@ function selectedValue(name) {
 function setStatus(message, isError = false) {
   statusMessages.forEach((node) => {
     node.textContent = message;
-    node.style.color = isError ? "#b2462a" : "#0a5d61";
+    node.classList.toggle("is-error", isError);
   });
 }
 
@@ -35,18 +66,6 @@ function updateChoiceCards() {
   document.querySelectorAll(".choice-card").forEach((card) => {
     const input = card.querySelector("input");
     card.classList.toggle("is-selected", Boolean(input?.checked));
-  });
-}
-
-function setRequiredByCategory(activeCategory) {
-  form.querySelectorAll("[data-category-required]").forEach((field) => {
-    field.required = field.dataset.categoryRequired === activeCategory;
-  });
-}
-
-function setRequiredBySocialType(activeSocialType) {
-  form.querySelectorAll("[data-conditional]").forEach((field) => {
-    field.required = field.dataset.conditional === activeSocialType;
   });
 }
 
@@ -76,9 +95,15 @@ function showStep(stepName) {
 
 function updateProgress(stepName) {
   const order = ["intro", "social-type", "details", "summary"];
-  const mappedStep = stepName === "social-details" || stepName === "pr" || stepName === "achievements"
+  const mappedStep = (
+    stepName === "social-details"
+    || stepName === "pr"
+    || stepName === "achievements"
+    || stepName === "details-empty"
+  )
     ? "details"
     : stepName;
+
   const activeIndex = order.indexOf(mappedStep);
 
   progressSteps.forEach((node) => {
@@ -90,14 +115,8 @@ function updateProgress(stepName) {
 
 function toggleCategoryBranches() {
   const category = selectedValue("category");
-  const isSocial = category === "Social Media";
-  const isPr = category === "PR";
-  const isAchievements = category === "Achievements";
 
-  prSection.classList.toggle("hidden", !isPr);
-  achievementsSection.classList.toggle("hidden", !isAchievements);
-
-  if (!isSocial) {
+  if (category !== "Social Media") {
     socialTypeInputs.forEach((input) => {
       input.checked = false;
     });
@@ -107,16 +126,6 @@ function toggleCategoryBranches() {
     });
   }
 
-  if (!isPr) {
-    clearHiddenSectionFields(prSection);
-  }
-
-  if (!isAchievements) {
-    clearHiddenSectionFields(achievementsSection);
-  }
-
-  setRequiredByCategory(category);
-  setRequiredBySocialType(selectedValue("socialType"));
   updateChoiceCards();
 }
 
@@ -132,50 +141,35 @@ function toggleSocialTypeBranches() {
     }
   });
 
-  setRequiredBySocialType(socialType);
   updateChoiceCards();
 }
 
-function fieldsAreValid(selectors) {
-  return selectors.every((selector) => {
-    const field = form.querySelector(selector);
-    return field?.reportValidity();
-  });
-}
-
 function goForwardFromIntro() {
-  const introValid = fieldsAreValid([
-    'input[name="employeeName"]',
-    'select[name="department"]'
-  ]);
+  const category = selectedValue("category");
 
-  if (!introValid) {
-    return;
-  }
-
-  if (!selectedValue("category")) {
-    form.querySelector('input[name="category"]').reportValidity();
-    return;
-  }
-
-  if (selectedValue("category") === "Social Media") {
+  if (category === "Social Media") {
     showStep("social-type");
     return;
   }
 
-  if (selectedValue("category") === "PR") {
+  if (category === "PR") {
     showStep("pr");
     return;
   }
 
-  if (selectedValue("category") === "Achievements") {
+  if (category === "Achievements") {
     showStep("achievements");
+    return;
   }
+
+  showStep("details-empty");
 }
 
 function goForwardFromSocialType() {
-  if (!selectedValue("socialType")) {
-    form.querySelector('input[name="socialType"]').reportValidity();
+  const socialType = selectedValue("socialType");
+
+  if (!socialType) {
+    showStep("details-empty");
     return;
   }
 
@@ -217,16 +211,17 @@ function getSummarySections(payload) {
     {
       title: "Requester Information",
       rows: [
-        ["Name", payload.employeeName],
-        ["Department", payload.department],
-        ["Category", payload.category]
+        ["Name", payload.employeeName || "Not provided"],
+        ["Department", payload.department || "Not provided"],
+        ["Category", payload.category || "To be classified"],
+        ["Social Media Type", payload.socialType || "Not provided"]
       ]
     }
   ];
 
   if (payload.category === "Social Media") {
     const socialTitle = payload.socialType || "Social Media Request";
-    let rows = [["Social Media Type", payload.socialType]];
+    let rows = [["Social Media Type", payload.socialType || "Not provided"]];
 
     if (payload.socialType === "New Creative") {
       rows = rows.concat([
@@ -238,7 +233,7 @@ function getSummarySections(payload) {
         ["Brief description of the event", payload.newCreativeDescription],
         ["Speaker details", payload.newCreativeSpeakerDetails],
         ["Drive link to photographs", payload.newCreativePhotoDriveLink],
-        ["LinkedIn Profile", payload.newCreativeLinkedinProfile || "Not provided"],
+        ["LinkedIn Profile", payload.newCreativeLinkedinProfile],
         ["Partner institutions and logos", payload.newCreativePartnerInstitutions],
         ["Tagging links", payload.newCreativeTaggingLinks]
       ]);
@@ -306,6 +301,16 @@ function getSummarySections(payload) {
     });
   }
 
+  if (!payload.category) {
+    sections.push({
+      title: "Open Request Notes",
+      rows: [
+        ["Status", "Submitted without category"],
+        ["Next step", "Team can classify this in the workflow desk"]
+      ]
+    });
+  }
+
   return sections;
 }
 
@@ -340,7 +345,7 @@ function buildSummaryMarkup(payload) {
       return `
         <section class="summary-block">
           <h4>${sanitizeText(section.title)}</h4>
-          <div class="summary-list">${rows}</div>
+          <div class="summary-list">${rows || '<p class="summary-note">No extra information added yet.</p>'}</div>
         </section>
       `;
     })
@@ -350,11 +355,11 @@ function buildSummaryMarkup(payload) {
     <header class="summary-header">
       <div>
         <p class="eyebrow">Questionnaire Response</p>
-        <h3>${sanitizeText(APP_CONFIG.companyName)} Media Box Submission</h3>
+        <h3>${sanitizeText(APP_CONFIG.companyName)} Submission</h3>
       </div>
       <div class="summary-meta">
         <p><strong>Submitted:</strong> ${sanitizeText(submittedAt)}</p>
-        <p><strong>Department:</strong> ${sanitizeText(payload.department)}</p>
+        <p><strong>Department:</strong> ${sanitizeText(payload.department || "Not provided")}</p>
       </div>
     </header>
     <div class="summary-grid">${blocks}</div>
@@ -368,23 +373,69 @@ function formDataToObject() {
   return payload;
 }
 
-function validateBusinessRules(payload) {
-  if (payload.category === "Social Media" && !payload.socialType) {
-    return "Please choose the social media request type.";
+function createTaskTitle(payload) {
+  if (payload.category === "PR") {
+    return payload.prEventAnnouncement || "New PR request";
   }
 
-  if (payload.socialType === "New Creative" && payload.newCreativeEventDate) {
-    const eventDate = new Date(payload.newCreativeEventDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const differenceInDays = Math.ceil((eventDate.getTime() - today.getTime()) / 86400000);
-
-    if (differenceInDays < 5) {
-      return "New Creative requests should ideally be submitted at least 5 days before the event date.";
-    }
+  if (payload.category === "Achievements") {
+    return payload.achievementStartupName || "New achievement request";
   }
 
-  return "";
+  if (payload.category === "Social Media") {
+    return (
+      payload.newCreativeEventName
+      || payload.postEventTitle
+      || payload.externalEventName
+      || payload.socialType
+      || "New social media request"
+    );
+  }
+
+  return payload.employeeName
+    ? `Open request from ${payload.employeeName}`
+    : "Unclassified media request";
+}
+
+function createTaskSummary(payload) {
+  return (
+    payload.newCreativeDescription
+    || payload.achievementDescription
+    || payload.prWhySignificant
+    || payload.prEventAnnouncement
+    || payload.postEventTaggingDetails
+    || "Awaiting more details"
+  );
+}
+
+function saveSubmissionLocally(payload) {
+  const requests = readJsonStorage(STORAGE_KEYS.requests, []);
+  const tasks = readJsonStorage(STORAGE_KEYS.tasks, []);
+  const requestId = `REQ-${Date.now()}`;
+  const request = { ...payload, id: requestId };
+
+  requests.unshift(request);
+  tasks.unshift({
+    id: `TASK-${Date.now()}`,
+    requestId,
+    title: createTaskTitle(payload),
+    category: payload.category || "Unclassified",
+    socialType: payload.socialType || "",
+    department: payload.department || "Unassigned",
+    requesterName: payload.employeeName || "Unknown requester",
+    status: "Will Do",
+    team: payload.category === "PR" ? "PR Team" : "Content Team",
+    assignee: "To be assigned",
+    priority: payload.category === "PR" ? "High Touch" : "Standard",
+    summary: createTaskSummary(payload),
+    createdAt: payload.submittedAt,
+    dueText: payload.newCreativeEventDate || payload.postEventDate || payload.externalEventDate || payload.prWhen || "",
+    notes: "",
+    payload: request
+  });
+
+  writeJsonStorage(STORAGE_KEYS.requests, requests);
+  writeJsonStorage(STORAGE_KEYS.tasks, tasks);
 }
 
 async function submitToEndpoint(payload) {
@@ -440,17 +491,7 @@ form.addEventListener("submit", async (event) => {
   setStatus("");
 
   const payload = formDataToObject();
-  const businessRuleError = validateBusinessRules(payload);
-
-  if (!form.reportValidity()) {
-    setStatus("Please complete the required fields before submitting.", true);
-    return;
-  }
-
-  if (businessRuleError) {
-    setStatus(businessRuleError, true);
-    return;
-  }
+  saveSubmissionLocally(payload);
 
   summaryCard.innerHTML = buildSummaryMarkup(payload);
   summarySection.classList.remove("hidden");
@@ -463,17 +504,18 @@ form.addEventListener("submit", async (event) => {
     const result = await submitToEndpoint(payload);
 
     if (result?.mode === "preview-only") {
-      setStatus("Summary generated.");
+      setStatus("Summary generated and request saved locally to the workflow desk.");
     } else {
-      setStatus("Submission sent successfully.");
+      setStatus("Submission sent successfully and mirrored in the workflow desk.");
     }
   } catch (error) {
-    setStatus(`${error.message} The summary is still available below for printing or saving as PDF.`, true);
+    setStatus(`${error.message} The summary is still available below and the local workflow card has been created.`, true);
   }
 
   summarySection.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
+ensureDefaultTeams();
 toggleCategoryBranches();
 toggleSocialTypeBranches();
 updateChoiceCards();
