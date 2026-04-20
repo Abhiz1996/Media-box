@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Media Box workflow dashboard for PR and social media request management."
+      content="Media Box workflow planner for social media, PR, achievements, and daily digest tracking."
     >
-    <title>Media Box Workflow Desk</title>
+    <title>Media Box Workflow Planner</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -24,8 +24,8 @@
         <a class="brand-mark" href="index.html">
           <span class="brand-mark-dot"></span>
           <span>
-            <strong>Media Box Workflow Desk</strong>
-            <small>PR and social operations board</small>
+            <strong>Media Box Workflow Planner</strong>
+            <small>Form-linked internal tracker</small>
           </span>
         </a>
 
@@ -38,9 +38,10 @@
       <section class="login-shell" id="loginShell">
         <div class="login-card">
           <p class="eyebrow">Protected Workspace</p>
-          <h1>Sign in to the workflow desk.</h1>
+          <h1>Sign in to the workflow planner.</h1>
           <p>
-            Access the internal operations board for request segregation, assignments, due dates, and live status tracking.
+            Review the requests coming from the intake form, switch between category tabs,
+            and keep the team aligned with a simple, understandable planner.
           </p>
 
           <form class="login-form" id="loginForm">
@@ -54,11 +55,11 @@
               <input type="password" name="password" placeholder="Enter password" autocomplete="current-password">
             </label>
 
-            <button class="login-button" type="submit">Enter Workflow Desk</button>
+            <button class="login-button" type="submit">Enter Planner</button>
           </form>
 
           <p class="login-help">
-            Demo access for now:
+            Demo access:
             <strong>admin</strong>
             /
             <strong>mediabox</strong>
@@ -70,233 +71,83 @@
       <section class="is-hidden" id="dashboardApp">
         <div class="metrics-grid" id="metricsGrid"></div>
 
-        <div class="dashboard-grid">
-          <section>
-            <div class="panel">
-              <div class="workflow-hero">
-                <div class="section-heading">
-                  <p class="eyebrow">Workflow Designer</p>
-                  <h2>Track live work like a media operations board</h2>
-                  <p>
-                    Filter incoming requests, move cards between stages, assign teams, and open each request as a working document.
-                  </p>
-                </div>
-
-                <div class="workflow-hero-note">
-                  <strong>Board rhythm</strong>
-                  <span>Review incoming briefs, assign ownership, set due dates, and move every request toward publication.</span>
-                </div>
-              </div>
-
-              <div class="toolbar-grid">
-                <label class="filter-card">
-                  <span>Search</span>
-                  <input type="search" id="searchInput" placeholder="Search title, requester, team">
-                </label>
-
-                <label class="filter-card">
-                  <span>Category</span>
-                  <select id="categoryFilter">
-                    <option value="">All categories</option>
-                    <option>Social Media</option>
-                    <option>PR</option>
-                    <option>Achievements</option>
-                    <option>Unclassified</option>
-                  </select>
-                </label>
-
-                <label class="filter-card">
-                  <span>Department</span>
-                  <select id="departmentFilter">
-                    <option value="">All departments</option>
-                  </select>
-                </label>
-
-                <label class="filter-card">
-                  <span>Team</span>
-                  <select id="teamFilter">
-                    <option value="">All teams</option>
-                  </select>
-                </label>
-              </div>
-
-              <div class="workflow-board">
-                <section class="lane lane-will-do" data-lane="Will Do">
-                  <div class="lane-header">
-                    <div>
-                      <h3>Will Do</h3>
-                      <p>New briefs and upcoming work</p>
-                    </div>
-                    <button class="lane-menu" type="button" aria-label="More options">⋮</button>
-                  </div>
-                  <div class="lane-meta">
-                    <div class="lane-meta-block">
-                      <span>Due date for list</span>
-                      <p>Set per card</p>
-                    </div>
-                    <div class="lane-meta-block">
-                      <span>Task list owners</span>
-                      <div class="lane-owners">
-                        <span class="owner-avatar">PR</span>
-                        <span class="owner-avatar">SM</span>
-                        <span class="owner-avatar owner-avatar-add">+</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="lane-toolbar">
-                    <span class="lane-count" data-count-for="Will Do">0</span>
-                    <span class="lane-caption">Ready for intake review</span>
-                  </div>
-                  <div class="lane-cards" data-lane-cards="Will Do"></div>
-                </section>
-
-                <section class="lane lane-ongoing" data-lane="Ongoing">
-                  <div class="lane-header">
-                    <div>
-                      <h3>Ongoing</h3>
-                      <p>Active production and review</p>
-                    </div>
-                    <button class="lane-menu" type="button" aria-label="More options">⋮</button>
-                  </div>
-                  <div class="lane-meta">
-                    <div class="lane-meta-block">
-                      <span>Due date for list</span>
-                      <p>Tracked per deliverable</p>
-                    </div>
-                    <div class="lane-meta-block">
-                      <span>Task list owners</span>
-                      <div class="lane-owners">
-                        <span class="owner-avatar">DS</span>
-                        <span class="owner-avatar">CT</span>
-                        <span class="owner-avatar owner-avatar-add">+</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="lane-toolbar">
-                    <span class="lane-count" data-count-for="Ongoing">0</span>
-                    <span class="lane-caption">In production now</span>
-                  </div>
-                  <div class="lane-cards" data-lane-cards="Ongoing"></div>
-                </section>
-
-                <section class="lane lane-completed" data-lane="Completed">
-                  <div class="lane-header">
-                    <div>
-                      <h3>Completed</h3>
-                      <p>Published or handed off</p>
-                    </div>
-                    <button class="lane-menu" type="button" aria-label="More options">⋮</button>
-                  </div>
-                  <div class="lane-meta">
-                    <div class="lane-meta-block">
-                      <span>Due date for list</span>
-                      <p>Archive by campaign</p>
-                    </div>
-                    <div class="lane-meta-block">
-                      <span>Task list owners</span>
-                      <div class="lane-owners">
-                        <span class="owner-avatar">AR</span>
-                        <span class="owner-avatar">PO</span>
-                        <span class="owner-avatar owner-avatar-add">+</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="lane-toolbar">
-                    <span class="lane-count" data-count-for="Completed">0</span>
-                    <span class="lane-caption">Ready for record and reporting</span>
-                  </div>
-                  <div class="lane-cards" data-lane-cards="Completed"></div>
-                </section>
-              </div>
+        <section class="panel planner-header-panel">
+          <div class="planner-header">
+            <div class="section-heading">
+              <p class="eyebrow">Workflow Planner</p>
+              <h2>Follow the details coming in from the form</h2>
+              <p>
+                Each tab reflects a request category. The planner highlights what was submitted,
+                who it came from, and the current action state without overcomplicating the workflow.
+              </p>
             </div>
+          </div>
+
+          <div class="planner-tabs" id="plannerTabs">
+            <button class="planner-tab is-active" type="button" data-planner-tab="social">
+              <span>Social Media Creative</span>
+              <strong id="tabCountSocial">0</strong>
+            </button>
+            <button class="planner-tab" type="button" data-planner-tab="pr">
+              <span>PR</span>
+              <strong id="tabCountPr">0</strong>
+            </button>
+            <button class="planner-tab" type="button" data-planner-tab="achievements">
+              <span>Achievements</span>
+              <strong id="tabCountAchievements">0</strong>
+            </button>
+            <button class="planner-tab" type="button" data-planner-tab="daily-digest">
+              <span>Daily Digest</span>
+              <strong id="tabCountDailyDigest">0</strong>
+            </button>
+          </div>
+
+          <div class="planner-toolbar">
+            <label class="filter-card">
+              <span>Search</span>
+              <input type="search" id="searchInput" placeholder="Search requester, title, or summary">
+            </label>
+
+            <label class="filter-card">
+              <span>Department</span>
+              <select id="departmentFilter">
+                <option value="">All departments</option>
+              </select>
+            </label>
+
+            <label class="filter-card">
+              <span>Status</span>
+              <select id="statusFilter">
+                <option value="">All activity states</option>
+                <option>Will Do</option>
+                <option>Ongoing</option>
+                <option>Completed</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <div class="planner-layout">
+          <section class="panel planner-list-panel">
+            <div class="planner-list-header">
+              <div>
+                <p class="eyebrow" id="plannerEyebrow">Social Media Creative</p>
+                <h3 id="plannerHeading">Requests</h3>
+                <p class="planner-copy" id="plannerCopy"></p>
+              </div>
+              <div class="planner-badge" id="plannerVisibleCount">0 items</div>
+            </div>
+
+            <div class="digest-board hidden" id="digestBoard"></div>
+            <div class="planner-list" id="plannerList"></div>
           </section>
 
-          <aside class="sidebar-stack">
-            <section class="panel team-panel">
-              <div class="section-heading">
-                <p class="eyebrow">Assignments</p>
-                <h2>Team setup</h2>
-                <p>Add or rename team lanes now. Individual names can be filled later.</p>
-              </div>
-
-              <form class="team-form" id="teamForm">
-                <label>
-                  Team name
-                  <input type="text" id="teamInput" placeholder="Example: Studio Team">
-                </label>
-                <button class="primary-button" type="submit">Add Team</button>
-              </form>
-
-              <div class="team-chip-row" id="teamChipRow"></div>
-            </section>
-
-            <section class="panel detail-panel" id="detailPanel">
-              <div class="section-heading">
-                <p class="eyebrow">Request Details</p>
-                <h2>Open a card</h2>
-                <p>Card details, headings, notes, and ownership controls will appear here.</p>
-              </div>
-            </section>
+          <aside class="panel planner-detail-panel">
+            <div id="plannerDetail"></div>
           </aside>
         </div>
       </section>
     </main>
-
-    <div class="drawer-overlay" id="drawerOverlay" aria-hidden="true">
-      <aside class="drawer-panel" id="drawerPanel">
-        <div class="drawer-header">
-          <div class="drawer-title">
-            <p class="eyebrow">Workflow Card</p>
-            <h3 id="drawerTaskTitle">Task</h3>
-            <p class="drawer-copy" id="drawerTaskSummary"></p>
-          </div>
-          <button class="ghost-button drawer-close" id="drawerClose" type="button" aria-label="Close details">X</button>
-        </div>
-
-        <div class="drawer-meta" id="drawerMeta"></div>
-
-        <section class="drawer-section">
-          <h4>Workflow Controls</h4>
-          <div class="field-grid">
-            <label class="field">
-              <span>Status</span>
-              <select id="drawerStatus"></select>
-            </label>
-            <label class="field">
-              <span>Assigned team</span>
-              <select id="drawerTeam"></select>
-            </label>
-            <label class="field">
-              <span>Assignee</span>
-              <input type="text" id="drawerAssignee" placeholder="Name can be added later">
-            </label>
-            <label class="field">
-              <span>Priority</span>
-              <select id="drawerPriority">
-                <option>Standard</option>
-                <option>High Touch</option>
-                <option>Fast Turnaround</option>
-              </select>
-            </label>
-            <label class="field full-width">
-              <span>Notes</span>
-              <textarea id="drawerNotes" rows="5" placeholder="Production notes, approvals, or documentation"></textarea>
-            </label>
-          </div>
-
-          <div class="drawer-actions">
-            <button class="primary-button" id="saveTaskButton" type="button">Save Changes</button>
-            <button class="ghost-button" id="markOngoingButton" type="button">Mark Ongoing</button>
-            <button class="ghost-button" id="markCompletedButton" type="button">Mark Completed</button>
-          </div>
-        </section>
-
-        <section class="drawer-section">
-          <h4>Request Headings</h4>
-          <div class="request-detail-grid" id="requestDetailGrid"></div>
-        </section>
-      </aside>
-    </div>
 
     <script src="dashboard.js"></script>
   </body>

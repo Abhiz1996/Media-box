@@ -1,5 +1,4 @@
 const STORAGE_KEYS = {
-  requests: "mediaBoxRequests",
   tasks: "mediaBoxWorkflowTasks",
   teams: "mediaBoxTeams",
   session: "mediaBoxDashboardSession"
@@ -7,37 +6,174 @@ const STORAGE_KEYS = {
 
 const WORKFLOW_STATUSES = ["Will Do", "Ongoing", "Completed"];
 
+const TAB_CONFIG = {
+  social: {
+    label: "Social Media Creative",
+    heading: "Social media and creative requests",
+    description: "Track the event promotions, post-event creatives, and partner-event requests submitted through the intake form.",
+    categories: ["Social Media"]
+  },
+  pr: {
+    label: "PR",
+    heading: "Press release requests",
+    description: "Review announcements, background notes, and media support requests for the PR team.",
+    categories: ["PR"]
+  },
+  achievements: {
+    label: "Achievements",
+    heading: "Achievement highlights",
+    description: "Follow startup wins, mission milestones, and achievement stories that need communication support.",
+    categories: ["Achievements"]
+  },
+  "daily-digest": {
+    label: "Daily Digest",
+    heading: "Daily digest overview",
+    description: "See the live activity count and any requests filed directly under the daily digest category.",
+    categories: ["Daily Digest"]
+  }
+};
+
+const FIELD_LABELS = {
+  employeeName: "Name",
+  department: "Department",
+  category: "Category",
+  socialType: "Social Media Type",
+  submittedAt: "Submitted At",
+  newCreativeEventName: "Event Name",
+  newCreativeEventDate: "Event Date",
+  newCreativeEventTime: "Event Time",
+  newCreativeLocation: "Location",
+  newCreativeRegistrationLink: "Registration Link",
+  newCreativeDescription: "Event Description",
+  newCreativeSpeakerDetails: "Speaker Details",
+  newCreativePhotoDriveLink: "Photo Drive Link",
+  newCreativeLinkedinProfile: "LinkedIn Profile",
+  newCreativePartnerInstitutions: "Partner Institutions and Logos",
+  newCreativeTaggingLinks: "Tagging Links",
+  postEventTitle: "Post Event Title",
+  postEventDate: "Post Event Date",
+  postEventLocation: "Post Event Location",
+  postEventPhotoDriveLink: "Post Event Photo Drive Link",
+  postEventTaggingDetails: "Post Event Tagging Details",
+  externalEventName: "External Event Name",
+  externalPartnerOrganisation: "Partner Organisation",
+  externalRegistrationLink: "Registration Link",
+  externalEventDate: "Event Date",
+  externalEventLocation: "Event Location",
+  externalCreativeToBePublished: "Creative to be Published",
+  externalTaggingLinks: "External Tagging Links",
+  achievementStartupName: "Startup or Mission",
+  achievementDescription: "Achievement Description",
+  achievementPhotos: "Photos",
+  achievementLogos: "Logos",
+  achievementTaggingLinks: "Tagging Links",
+  achievementContactDetails: "Contact Details",
+  prEventAnnouncement: "Event or Announcement",
+  prWhoIsInvolved: "Who Is Involved",
+  prWhen: "When",
+  prWhere: "Where",
+  prWhySignificant: "Why Significant",
+  prKeyHighlights: "Key Highlights",
+  prNotableSpeakers: "Notable Speakers",
+  prBackgroundContext: "Background Context",
+  prQuotes: "Quotes",
+  prTestimonials: "Testimonials",
+  prFollowUpEvents: "Follow-up Events",
+  prMoreInformation: "More Information",
+  prMediaAssets: "Media Assets",
+  prCaptions: "Captions",
+  prContactPerson: "Contact Person"
+};
+
+const REQUEST_GROUPS = [
+  {
+    title: "Requester Snapshot",
+    keys: ["employeeName", "department", "category", "socialType", "submittedAt"]
+  },
+  {
+    title: "Social Media Details",
+    keys: [
+      "newCreativeEventName",
+      "newCreativeEventDate",
+      "newCreativeEventTime",
+      "newCreativeLocation",
+      "newCreativeRegistrationLink",
+      "newCreativeDescription",
+      "newCreativeSpeakerDetails",
+      "newCreativePhotoDriveLink",
+      "newCreativeLinkedinProfile",
+      "newCreativePartnerInstitutions",
+      "newCreativeTaggingLinks",
+      "postEventTitle",
+      "postEventDate",
+      "postEventLocation",
+      "postEventPhotoDriveLink",
+      "postEventTaggingDetails",
+      "externalEventName",
+      "externalPartnerOrganisation",
+      "externalRegistrationLink",
+      "externalEventDate",
+      "externalEventLocation",
+      "externalCreativeToBePublished",
+      "externalTaggingLinks"
+    ]
+  },
+  {
+    title: "PR Details",
+    keys: [
+      "prEventAnnouncement",
+      "prWhoIsInvolved",
+      "prWhen",
+      "prWhere",
+      "prWhySignificant",
+      "prKeyHighlights",
+      "prNotableSpeakers",
+      "prBackgroundContext",
+      "prQuotes",
+      "prTestimonials",
+      "prFollowUpEvents",
+      "prMoreInformation",
+      "prMediaAssets",
+      "prCaptions",
+      "prContactPerson"
+    ]
+  },
+  {
+    title: "Achievement Details",
+    keys: [
+      "achievementStartupName",
+      "achievementDescription",
+      "achievementPhotos",
+      "achievementLogos",
+      "achievementTaggingLinks",
+      "achievementContactDetails"
+    ]
+  }
+];
+
 const loginShell = document.querySelector("#loginShell");
 const dashboardApp = document.querySelector("#dashboardApp");
 const loginForm = document.querySelector("#loginForm");
 const loginStatus = document.querySelector("#loginStatus");
 const logoutButton = document.querySelector("#logoutButton");
 const metricsGrid = document.querySelector("#metricsGrid");
-const detailPanel = document.querySelector("#detailPanel");
-const teamForm = document.querySelector("#teamForm");
-const teamInput = document.querySelector("#teamInput");
-const teamChipRow = document.querySelector("#teamChipRow");
-const drawerOverlay = document.querySelector("#drawerOverlay");
-const drawerClose = document.querySelector("#drawerClose");
-const drawerTaskTitle = document.querySelector("#drawerTaskTitle");
-const drawerTaskSummary = document.querySelector("#drawerTaskSummary");
-const drawerMeta = document.querySelector("#drawerMeta");
-const drawerStatus = document.querySelector("#drawerStatus");
-const drawerTeam = document.querySelector("#drawerTeam");
-const drawerAssignee = document.querySelector("#drawerAssignee");
-const drawerPriority = document.querySelector("#drawerPriority");
-const drawerNotes = document.querySelector("#drawerNotes");
-const requestDetailGrid = document.querySelector("#requestDetailGrid");
+const plannerTabs = Array.from(document.querySelectorAll("[data-planner-tab]"));
+const plannerEyebrow = document.querySelector("#plannerEyebrow");
+const plannerHeading = document.querySelector("#plannerHeading");
+const plannerCopy = document.querySelector("#plannerCopy");
+const plannerVisibleCount = document.querySelector("#plannerVisibleCount");
+const digestBoard = document.querySelector("#digestBoard");
+const plannerList = document.querySelector("#plannerList");
+const plannerDetail = document.querySelector("#plannerDetail");
 
 const filters = {
   search: document.querySelector("#searchInput"),
-  category: document.querySelector("#categoryFilter"),
   department: document.querySelector("#departmentFilter"),
-  team: document.querySelector("#teamFilter")
+  status: document.querySelector("#statusFilter")
 };
 
-let activeTaskId = "";
-let dragTaskId = "";
+let activeTab = "social";
+let selectedTaskId = "";
 
 function readJsonStorage(key, fallback) {
   try {
@@ -51,22 +187,77 @@ function writeJsonStorage(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+function getTasks() {
+  return readJsonStorage(STORAGE_KEYS.tasks, []);
+}
+
+function setTasks(tasks) {
+  writeJsonStorage(STORAGE_KEYS.tasks, tasks);
+}
+
+function getTeams() {
+  return readJsonStorage(STORAGE_KEYS.teams, []);
+}
+
+function setTeams(teams) {
+  writeJsonStorage(STORAGE_KEYS.teams, teams);
+}
+
+function setSession(isLoggedIn) {
+  localStorage.setItem(STORAGE_KEYS.session, isLoggedIn ? "active" : "");
+}
+
+function hasSession() {
+  return localStorage.getItem(STORAGE_KEYS.session) === "active";
+}
+
+function sanitizeText(text) {
+  return String(text || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function isLikelyUrl(value) {
+  return /^https?:\/\//i.test(String(value));
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "Not provided";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "medium",
+    ...(String(value).includes("T") ? { timeStyle: "short" } : {})
+  }).format(date);
+}
+
 function ensureSeedData() {
-  const teams = readJsonStorage(STORAGE_KEYS.teams, []);
-  const tasks = readJsonStorage(STORAGE_KEYS.tasks, []);
+  const teams = getTeams();
+  const tasks = getTasks();
 
   if (!teams.length) {
-    writeJsonStorage(STORAGE_KEYS.teams, [
+    setTeams([
       "Design Team",
       "Content Team",
       "PR Team",
-      "Social Media Team"
+      "Social Media Team",
+      "Daily Digest Team"
     ]);
   }
 
   if (!tasks.length) {
     const timestamp = new Date().toISOString();
-    writeJsonStorage(STORAGE_KEYS.tasks, [
+    setTasks([
       {
         id: "TASK-DEMO-1",
         requestId: "REQ-DEMO-1",
@@ -144,378 +335,245 @@ function ensureSeedData() {
           achievementDescription: "Won a national innovation award.",
           submittedAt: timestamp
         }
+      },
+      {
+        id: "TASK-DEMO-4",
+        requestId: "REQ-DEMO-4",
+        title: "Daily ecosystem digest",
+        category: "Daily Digest",
+        socialType: "",
+        department: "Corporate Relations",
+        requesterName: "Anu",
+        status: "Ongoing",
+        team: "Daily Digest Team",
+        assignee: "To be assigned",
+        priority: "Standard",
+        summary: "Capture live activities across the day and prepare a digest summary.",
+        createdAt: timestamp,
+        dueText: "",
+        notes: "",
+        payload: {
+          employeeName: "Anu",
+          department: "Corporate Relations",
+          category: "Daily Digest",
+          submittedAt: timestamp
+        }
       }
     ]);
   }
 }
 
-function getTasks() {
-  return readJsonStorage(STORAGE_KEYS.tasks, []);
-}
-
-function setTasks(tasks) {
-  writeJsonStorage(STORAGE_KEYS.tasks, tasks);
-}
-
-function getTeams() {
-  return readJsonStorage(STORAGE_KEYS.teams, []);
-}
-
-function setTeams(teams) {
-  writeJsonStorage(STORAGE_KEYS.teams, teams);
-}
-
-function setSession(isLoggedIn) {
-  localStorage.setItem(STORAGE_KEYS.session, isLoggedIn ? "active" : "");
-}
-
-function hasSession() {
-  return localStorage.getItem(STORAGE_KEYS.session) === "active";
-}
-
-function sanitizeText(text) {
-  return String(text || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function formatDate(value) {
-  if (!value) {
-    return "No due date";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "medium",
-    ...(value.includes("T") ? { timeStyle: "short" } : {})
-  }).format(date);
-}
-
-function populateFilters() {
-  const currentDepartment = filters.department.value;
-  const currentTeam = filters.team.value;
-  const tasks = getTasks();
-  const teams = getTeams();
-  const departments = Array.from(new Set(tasks.map((task) => task.department).filter(Boolean))).sort();
+function populateDepartmentFilter() {
+  const currentValue = filters.department.value;
+  const departments = Array.from(new Set(getTasks().map((task) => task.department).filter(Boolean))).sort();
 
   filters.department.innerHTML = '<option value="">All departments</option>'
     + departments.map((department) => `<option>${sanitizeText(department)}</option>`).join("");
 
-  const teamOptions = ['<option value="">All teams</option>']
-    .concat(teams.map((team) => `<option>${sanitizeText(team)}</option>`))
-    .join("");
-
-  filters.team.innerHTML = teamOptions;
-  drawerTeam.innerHTML = teams.map((team) => `<option>${sanitizeText(team)}</option>`).join("");
-  drawerStatus.innerHTML = WORKFLOW_STATUSES.map((status) => `<option>${status}</option>`).join("");
-
-  filters.department.value = departments.includes(currentDepartment) ? currentDepartment : "";
-  filters.team.value = teams.includes(currentTeam) ? currentTeam : "";
+  filters.department.value = departments.includes(currentValue) ? currentValue : "";
 }
 
-function getFilteredTasks() {
-  const tasks = getTasks();
+function getTabTasks(tabId) {
+  const tab = TAB_CONFIG[tabId];
+  return getTasks().filter((task) => tab.categories.includes(task.category));
+}
+
+function getVisibleTasks() {
+  const tasks = getTabTasks(activeTab);
   const searchTerm = filters.search.value.trim().toLowerCase();
 
   return tasks.filter((task) => {
     const matchesSearch = !searchTerm || [
       task.title,
       task.requesterName,
-      task.team,
-      task.assignee,
-      task.summary
+      task.summary,
+      task.department,
+      task.socialType
     ].some((value) => String(value || "").toLowerCase().includes(searchTerm));
 
-    const matchesCategory = !filters.category.value || task.category === filters.category.value;
     const matchesDepartment = !filters.department.value || task.department === filters.department.value;
-    const matchesTeam = !filters.team.value || task.team === filters.team.value;
+    const matchesStatus = !filters.status.value || task.status === filters.status.value;
 
-    return matchesSearch && matchesCategory && matchesDepartment && matchesTeam;
+    return matchesSearch && matchesDepartment && matchesStatus;
   });
 }
 
-function renderMetrics(tasks) {
-  const willDoCount = tasks.filter((task) => task.status === "Will Do").length;
+function getLiveActivities() {
+  return getTasks().filter((task) => task.status !== "Completed");
+}
+
+function renderTabs() {
+  const socialCount = getTabTasks("social").length;
+  const prCount = getTabTasks("pr").length;
+  const achievementCount = getTabTasks("achievements").length;
+  const dailyDigestCount = getLiveActivities().length;
+
+  document.querySelector("#tabCountSocial").textContent = socialCount;
+  document.querySelector("#tabCountPr").textContent = prCount;
+  document.querySelector("#tabCountAchievements").textContent = achievementCount;
+  document.querySelector("#tabCountDailyDigest").textContent = dailyDigestCount;
+
+  plannerTabs.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.plannerTab === activeTab);
+  });
+}
+
+function renderMetrics() {
+  const tasks = getTasks();
+  const visibleTasks = getVisibleTasks();
+  const liveActivities = getLiveActivities();
   const ongoingCount = tasks.filter((task) => task.status === "Ongoing").length;
   const completedCount = tasks.filter((task) => task.status === "Completed").length;
-  const prCount = tasks.filter((task) => task.category === "PR").length;
-  const assignedCount = tasks.filter((task) => task.assignee && task.assignee !== "To be assigned").length;
 
   metricsGrid.innerHTML = `
     <article class="metric-card">
-      <p class="metric-label">Queue</p>
-      <strong>${tasks.length}</strong>
-      <span>Total cards across all categories</span>
+      <p class="metric-label">Active Tab</p>
+      <strong>${visibleTasks.length}</strong>
+      <span>Requests visible in the current planner view</span>
     </article>
     <article class="metric-card">
-      <p class="metric-label">Live Work</p>
+      <p class="metric-label">Live Activities</p>
+      <strong>${liveActivities.length}</strong>
+      <span>Items that are still open across all categories</span>
+    </article>
+    <article class="metric-card">
+      <p class="metric-label">Ongoing</p>
       <strong>${ongoingCount}</strong>
-      <span>Items currently in production or review</span>
+      <span>Requests actively being worked on right now</span>
     </article>
     <article class="metric-card">
-      <p class="metric-label">Assigned</p>
-      <strong>${assignedCount}</strong>
-      <span>Cards already mapped to an owner or team lead</span>
-    </article>
-    <article class="metric-card">
-      <p class="metric-label">PR Focus</p>
-      <strong>${prCount}</strong>
-      <span>Press-release work currently in the system</span>
+      <p class="metric-label">Completed</p>
+      <strong>${completedCount}</strong>
+      <span>Requests already wrapped and recorded</span>
     </article>
   `;
-
-  document.querySelector('[data-count-for="Will Do"]').textContent = willDoCount;
-  document.querySelector('[data-count-for="Ongoing"]').textContent = ongoingCount;
-  document.querySelector('[data-count-for="Completed"]').textContent = completedCount;
 }
 
-function createTaskCard(task) {
-  const card = document.createElement("article");
-  card.className = "task-card";
-  card.draggable = true;
-  card.dataset.taskId = task.id;
+function ensureSelectedTask(tasks) {
+  if (!tasks.length) {
+    selectedTaskId = "";
+    return null;
+  }
 
-  const categoryClass = task.category === "PR" ? "pill is-pr" : "pill";
-  const ownerInitial = (task.assignee && task.assignee !== "To be assigned")
-    ? task.assignee.trim().charAt(0).toUpperCase()
-    : task.team.trim().charAt(0).toUpperCase();
-  const dueLabel = task.dueText ? formatDate(task.dueText) : "No due date";
-  const taskType = task.socialType || task.category;
+  const matchingTask = tasks.find((task) => task.id === selectedTaskId);
+
+  if (matchingTask) {
+    return matchingTask;
+  }
+
+  selectedTaskId = tasks[0].id;
+  return tasks[0];
+}
+
+function buildPlannerCard(task) {
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = "planner-card";
+  card.dataset.taskId = task.id;
+  card.classList.toggle("is-active", task.id === selectedTaskId);
 
   card.innerHTML = `
-    <div class="task-topline">
-      <span class="${categoryClass}">${sanitizeText(task.category)}</span>
-      <span class="priority-pill">${sanitizeText(task.priority)}</span>
+    <div class="planner-card-top">
+      <span class="planner-status-chip">${sanitizeText(task.status)}</span>
+      <span class="planner-card-date">${sanitizeText(formatDate(task.createdAt))}</span>
     </div>
-    <h4 class="task-title">${sanitizeText(task.title)}</h4>
-    <p class="task-subtitle">${sanitizeText(task.summary)}</p>
-    <div class="task-meta-grid">
-      <div class="task-meta-card">
-        <span class="task-meta-label">Due date</span>
-        <strong>${sanitizeText(dueLabel)}</strong>
-      </div>
-      <div class="task-meta-card">
-        <span class="task-meta-label">Owner</span>
-        <div class="task-owner-row">
-          <span class="task-owner-avatar">${sanitizeText(ownerInitial)}</span>
-          <strong>${sanitizeText(task.assignee)}</strong>
-        </div>
-      </div>
-    </div>
-    <div class="task-automation-list">
-      <span class="automation-chip">
-        <strong>${sanitizeText(taskType)}</strong>
-        <small>workflow type</small>
-      </span>
-      <span class="automation-chip">
-        <strong>${sanitizeText(task.team)}</strong>
-        <small>assigned team</small>
-      </span>
-      <span class="automation-chip">
-        <strong>${sanitizeText(task.department)}</strong>
-        <small>origin department</small>
-      </span>
+    <h4>${sanitizeText(task.title)}</h4>
+    <p>${sanitizeText(task.summary)}</p>
+    <div class="planner-card-meta">
+      <span>${sanitizeText(task.requesterName)}</span>
+      <span>${sanitizeText(task.department)}</span>
+      <span>${sanitizeText(task.socialType || task.category)}</span>
     </div>
   `;
 
-  card.addEventListener("click", () => openTask(task.id));
-  card.addEventListener("dragstart", () => {
-    dragTaskId = task.id;
-    card.classList.add("dragging");
-  });
-  card.addEventListener("dragend", () => {
-    dragTaskId = "";
-    card.classList.remove("dragging");
+  card.addEventListener("click", () => {
+    selectedTaskId = task.id;
+    renderPlanner();
   });
 
   return card;
 }
 
-function renderTeamChips() {
-  const teams = getTeams();
-  teamChipRow.innerHTML = teams
-    .map((team) => `
-      <span class="team-chip">
-        ${sanitizeText(team)}
-        <button type="button" data-remove-team="${sanitizeText(team)}">x</button>
-      </span>
-    `)
-    .join("");
+function renderDigestBoard() {
+  if (activeTab !== "daily-digest") {
+    digestBoard.classList.add("hidden");
+    digestBoard.innerHTML = "";
+    return;
+  }
 
-  teamChipRow.querySelectorAll("[data-remove-team]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const teamName = button.dataset.removeTeam;
-      setTeams(getTeams().filter((team) => team !== teamName));
+  const tasks = getTasks();
+  const liveActivities = getLiveActivities();
+  const byCategory = {
+    social: tasks.filter((task) => task.category === "Social Media" && task.status !== "Completed").length,
+    pr: tasks.filter((task) => task.category === "PR" && task.status !== "Completed").length,
+    achievements: tasks.filter((task) => task.category === "Achievements" && task.status !== "Completed").length
+  };
 
-      const tasks = getTasks().map((task) => ({
-        ...task,
-        team: task.team === teamName ? "Content Team" : task.team
-      }));
-      setTasks(tasks);
-      rerender();
-    });
-  });
+  digestBoard.classList.remove("hidden");
+  digestBoard.innerHTML = `
+    <article class="digest-card digest-card-primary">
+      <p class="metric-label">Live Activities</p>
+      <strong>${liveActivities.length}</strong>
+      <span>All open work currently moving through the workflow.</span>
+    </article>
+    <article class="digest-card">
+      <p class="metric-label">Social Media</p>
+      <strong>${byCategory.social}</strong>
+      <span>Open social and creative requests</span>
+    </article>
+    <article class="digest-card">
+      <p class="metric-label">PR</p>
+      <strong>${byCategory.pr}</strong>
+      <span>Open press and note preparation items</span>
+    </article>
+    <article class="digest-card">
+      <p class="metric-label">Achievements</p>
+      <strong>${byCategory.achievements}</strong>
+      <span>Open milestone and recognition updates</span>
+    </article>
+  `;
 }
 
-function renderDetailPanel(task) {
-  if (!task) {
-    detailPanel.innerHTML = `
-      <div class="section-heading">
-        <p class="eyebrow">Request Details</p>
-        <h2>Open a card</h2>
-        <p>Card details, headings, notes, and ownership controls will appear here.</p>
-      </div>
+function renderPlannerList(tasks) {
+  const activeConfig = TAB_CONFIG[activeTab];
+
+  plannerEyebrow.textContent = activeConfig.label;
+  plannerHeading.textContent = activeConfig.heading;
+  plannerCopy.textContent = activeConfig.description;
+  plannerVisibleCount.textContent = `${tasks.length} item${tasks.length === 1 ? "" : "s"}`;
+
+  renderDigestBoard();
+
+  plannerList.innerHTML = "";
+
+  if (!tasks.length) {
+    plannerList.innerHTML = `
+      <section class="planner-empty">
+        <p class="eyebrow">No Matching Requests</p>
+        <h3>Nothing is showing in this planner view right now.</h3>
+        <p>Try another tab or clear a filter to see more requests from the intake form.</p>
+      </section>
     `;
     return;
   }
 
-  detailPanel.innerHTML = `
-    <div class="section-heading">
-      <p class="eyebrow">Selected Card</p>
-      <h2>${sanitizeText(task.title)}</h2>
-      <p>${sanitizeText(task.summary)}</p>
-    </div>
-    <div class="task-meta">
-      <p>${sanitizeText(task.category)}</p>
-      <p>${sanitizeText(task.status)}</p>
-      <p>${sanitizeText(task.team)}</p>
-    </div>
-    <div class="drawer-actions">
-      <button class="primary-button" type="button" id="openDrawerButton">Open Full Details</button>
-    </div>
-  `;
-
-  document.querySelector("#openDrawerButton").addEventListener("click", () => openTask(task.id));
+  tasks.forEach((task) => plannerList.appendChild(buildPlannerCard(task)));
 }
 
-function renderBoard() {
-  const tasks = getFilteredTasks();
-  renderMetrics(tasks);
-
-  WORKFLOW_STATUSES.forEach((status) => {
-    const laneNode = document.querySelector(`[data-lane-cards="${status}"]`);
-    laneNode.innerHTML = "";
-
-    const laneTasks = tasks.filter((task) => task.status === status);
-
-    laneTasks.forEach((task) => laneNode.appendChild(createTaskCard(task)));
-
-    if (!laneTasks.length) {
-      laneNode.innerHTML = '<div class="lane-empty">No cards in this stage right now.</div>';
-    }
-  });
-
-  document.querySelectorAll(".lane-cards").forEach((laneNode) => {
-    laneNode.addEventListener("dragover", (event) => {
-      event.preventDefault();
-    });
-
-    laneNode.addEventListener("drop", () => {
-      if (!dragTaskId) {
-        return;
-      }
-
-      const newStatus = laneNode.dataset.laneCards;
-      updateTask(dragTaskId, { status: newStatus });
-    });
-  });
-
-  if (!tasks.length) {
-    detailPanel.innerHTML = `
-      <section class="empty-dashboard">
-        <p class="eyebrow">No Matching Cards</p>
-        <h2>No requests match the current filters.</h2>
-        <p>Try clearing one of the filters or submit a new request from the intake form.</p>
-      </section>
-    `;
-  }
-}
-
-function requestEntries(payload) {
-  return Object.entries(payload || {}).filter(([, value]) => value);
-}
-
-function renderRequestDetails(payload) {
-  const groupedHeadings = [
-    {
-      title: "Requester",
-      keys: ["employeeName", "department", "category", "socialType", "submittedAt"]
-    },
-    {
-      title: "Social Media",
-      keys: [
-        "newCreativeEventName",
-        "newCreativeEventDate",
-        "newCreativeEventTime",
-        "newCreativeLocation",
-        "newCreativeRegistrationLink",
-        "newCreativeDescription",
-        "postEventTitle",
-        "postEventDate",
-        "postEventLocation",
-        "postEventPhotoDriveLink",
-        "postEventTaggingDetails",
-        "externalEventName",
-        "externalPartnerOrganisation",
-        "externalRegistrationLink",
-        "externalEventDate",
-        "externalEventLocation",
-        "externalCreativeToBePublished",
-        "externalTaggingLinks"
-      ]
-    },
-    {
-      title: "PR",
-      keys: [
-        "prEventAnnouncement",
-        "prWhoIsInvolved",
-        "prWhen",
-        "prWhere",
-        "prWhySignificant",
-        "prKeyHighlights",
-        "prNotableSpeakers",
-        "prBackgroundContext",
-        "prQuotes",
-        "prTestimonials",
-        "prFollowUpEvents",
-        "prMoreInformation",
-        "prMediaAssets",
-        "prCaptions",
-        "prContactPerson"
-      ]
-    },
-    {
-      title: "Achievements",
-      keys: [
-        "achievementStartupName",
-        "achievementDescription",
-        "achievementPhotos",
-        "achievementLogos",
-        "achievementTaggingLinks",
-        "achievementContactDetails"
-      ]
-    }
-  ];
-
-  requestDetailGrid.innerHTML = groupedHeadings
+function buildDetailGroups(task) {
+  return REQUEST_GROUPS
     .map((group) => {
       const rows = group.keys
-        .filter((key) => payload[key])
+        .filter((key) => task.payload?.[key])
         .map((key) => {
-          const value = payload[key];
-          const isUrl = /^https?:\/\//i.test(String(value));
+          const value = key.toLowerCase().includes("date") || key === "submittedAt" || key === "prWhen"
+            ? formatDate(task.payload[key])
+            : task.payload[key];
+
           return `
-            <div class="detail-group">
-              <strong>${sanitizeText(key)}</strong>
-              ${isUrl
+            <div class="detail-row">
+              <strong>${sanitizeText(FIELD_LABELS[key] || key)}</strong>
+              ${isLikelyUrl(value)
                 ? `<a href="${sanitizeText(value)}" target="_blank" rel="noopener noreferrer">${sanitizeText(value)}</a>`
                 : `<span>${sanitizeText(value)}</span>`
               }
@@ -529,48 +587,27 @@ function renderRequestDetails(payload) {
       }
 
       return `
-        <section>
+        <section class="detail-section">
           <h4>${sanitizeText(group.title)}</h4>
-          <div class="request-detail-grid">${rows}</div>
+          <div class="detail-grid">${rows}</div>
         </section>
       `;
     })
     .join("");
 }
 
-function openTask(taskId) {
-  const task = getTasks().find((item) => item.id === taskId);
+function addTeam(teamName) {
+  const cleanName = teamName.trim();
 
-  if (!task) {
+  if (!cleanName) {
     return;
   }
 
-  activeTaskId = taskId;
-  renderDetailPanel(task);
+  const teams = getTeams();
 
-  drawerTaskTitle.textContent = task.title;
-  drawerTaskSummary.textContent = task.summary;
-  drawerMeta.innerHTML = `
-    <p>${sanitizeText(task.category)}</p>
-    <p>${sanitizeText(task.department)}</p>
-    <p>${sanitizeText(task.requesterName)}</p>
-    <p>${sanitizeText(formatDate(task.createdAt))}</p>
-  `;
-
-  drawerStatus.value = task.status;
-  drawerTeam.value = task.team;
-  drawerAssignee.value = task.assignee;
-  drawerPriority.value = task.priority;
-  drawerNotes.value = task.notes;
-
-  renderRequestDetails(task.payload || {});
-  drawerOverlay.classList.add("is-open");
-  drawerOverlay.setAttribute("aria-hidden", "false");
-}
-
-function closeDrawer() {
-  drawerOverlay.classList.remove("is-open");
-  drawerOverlay.setAttribute("aria-hidden", "true");
+  if (!teams.includes(cleanName)) {
+    setTeams(teams.concat(cleanName));
+  }
 }
 
 function updateTask(taskId, updates) {
@@ -581,25 +618,118 @@ function updateTask(taskId, updates) {
   ));
 
   setTasks(tasks);
-  rerender();
+  renderPlanner();
+}
 
-  if (activeTaskId === taskId) {
-    const updatedTask = tasks.find((task) => task.id === taskId);
-    renderDetailPanel(updatedTask);
-    if (drawerOverlay.classList.contains("is-open")) {
-      openTask(taskId);
-    }
+function renderPlannerDetail(task) {
+  if (!task) {
+    plannerDetail.innerHTML = `
+      <section class="planner-empty">
+        <p class="eyebrow">Select A Request</p>
+        <h3>Open any request from the planner list.</h3>
+        <p>The detail view will show the exact form information that was submitted, along with simple workflow controls.</p>
+      </section>
+    `;
+    return;
   }
+
+  const teamOptions = getTeams()
+    .map((team) => `<option value="${sanitizeText(team)}"${task.team === team ? " selected" : ""}>${sanitizeText(team)}</option>`)
+    .join("");
+
+  plannerDetail.innerHTML = `
+    <div class="planner-detail-hero">
+      <p class="eyebrow">Selected Request</p>
+      <h3>${sanitizeText(task.title)}</h3>
+      <p class="planner-copy">${sanitizeText(task.summary)}</p>
+      <div class="planner-detail-meta">
+        <span>${sanitizeText(task.requesterName)}</span>
+        <span>${sanitizeText(task.department)}</span>
+        <span>${sanitizeText(task.socialType || task.category)}</span>
+        <span>${sanitizeText(formatDate(task.createdAt))}</span>
+      </div>
+    </div>
+
+    <section class="detail-section">
+      <h4>Workflow Controls</h4>
+      <div class="detail-control-grid">
+        <label class="field">
+          <span>Status</span>
+          <select id="detailStatus">
+            ${WORKFLOW_STATUSES.map((status) => `<option${task.status === status ? " selected" : ""}>${status}</option>`).join("")}
+          </select>
+        </label>
+        <label class="field">
+          <span>Assigned Team</span>
+          <select id="detailTeam">
+            ${teamOptions}
+          </select>
+        </label>
+        <label class="field">
+          <span>Assignee</span>
+          <input type="text" id="detailAssignee" value="${sanitizeText(task.assignee)}" placeholder="Add a person name later">
+        </label>
+        <label class="field full-width">
+          <span>Notes</span>
+          <textarea id="detailNotes" rows="4" placeholder="Add production notes, follow-up details, or handoff context">${sanitizeText(task.notes || "")}</textarea>
+        </label>
+      </div>
+
+      <div class="planner-actions">
+        <button class="primary-button" type="button" id="saveTaskButton">Save Workflow Notes</button>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h4>Team Setup</h4>
+      <div class="team-inline-form">
+        <input type="text" id="newTeamInput" placeholder="Add a new team name">
+        <button class="ghost-button" type="button" id="addTeamButton">Add Team</button>
+      </div>
+    </section>
+
+    ${buildDetailGroups(task)}
+  `;
+
+  document.querySelector("#saveTaskButton").addEventListener("click", () => {
+    updateTask(task.id, {
+      status: document.querySelector("#detailStatus").value,
+      team: document.querySelector("#detailTeam").value,
+      assignee: document.querySelector("#detailAssignee").value.trim() || "To be assigned",
+      notes: document.querySelector("#detailNotes").value.trim()
+    });
+  });
+
+  document.querySelector("#addTeamButton").addEventListener("click", () => {
+    addTeam(document.querySelector("#newTeamInput").value);
+    renderPlanner();
+  });
 }
 
-function rerender() {
-  populateFilters();
-  renderTeamChips();
-  renderBoard();
+function renderPlanner() {
+  populateDepartmentFilter();
+  renderTabs();
+  renderMetrics();
 
-  const activeTask = getTasks().find((task) => task.id === activeTaskId);
-  renderDetailPanel(activeTask);
+  const visibleTasks = getVisibleTasks();
+  const activeTask = ensureSelectedTask(visibleTasks);
+
+  renderPlannerList(visibleTasks);
+  renderPlannerDetail(activeTask);
 }
+
+plannerTabs.forEach((button) => {
+  button.addEventListener("click", () => {
+    activeTab = button.dataset.plannerTab;
+    selectedTaskId = "";
+    renderPlanner();
+  });
+});
+
+[filters.search, filters.department, filters.status].forEach((element) => {
+  element.addEventListener("input", renderPlanner);
+  element.addEventListener("change", renderPlanner);
+});
 
 loginForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -614,7 +744,7 @@ loginForm.addEventListener("submit", (event) => {
     loginShell.classList.add("is-hidden");
     dashboardApp.classList.remove("is-hidden");
     logoutButton.classList.remove("is-hidden");
-    rerender();
+    renderPlanner();
     return;
   }
 
@@ -624,73 +754,16 @@ loginForm.addEventListener("submit", (event) => {
 
 logoutButton.addEventListener("click", () => {
   setSession(false);
-  closeDrawer();
   dashboardApp.classList.add("is-hidden");
   loginShell.classList.remove("is-hidden");
   logoutButton.classList.add("is-hidden");
 });
 
-teamForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const teamName = teamInput.value.trim();
-
-  if (!teamName) {
-    return;
-  }
-
-  const teams = getTeams();
-
-  if (!teams.includes(teamName)) {
-    setTeams(teams.concat(teamName));
-    teamInput.value = "";
-    rerender();
-  }
-});
-
-[filters.search, filters.category, filters.department, filters.team].forEach((element) => {
-  element.addEventListener("input", renderBoard);
-  element.addEventListener("change", renderBoard);
-});
-
-drawerClose.addEventListener("click", closeDrawer);
-drawerOverlay.addEventListener("click", (event) => {
-  if (event.target === drawerOverlay) {
-    closeDrawer();
-  }
-});
-
-document.querySelector("#saveTaskButton").addEventListener("click", () => {
-  if (!activeTaskId) {
-    return;
-  }
-
-  updateTask(activeTaskId, {
-    status: drawerStatus.value,
-    team: drawerTeam.value,
-    assignee: drawerAssignee.value.trim() || "To be assigned",
-    priority: drawerPriority.value,
-    notes: drawerNotes.value.trim()
-  });
-});
-
-document.querySelector("#markOngoingButton").addEventListener("click", () => {
-  if (activeTaskId) {
-    updateTask(activeTaskId, { status: "Ongoing" });
-  }
-});
-
-document.querySelector("#markCompletedButton").addEventListener("click", () => {
-  if (activeTaskId) {
-    updateTask(activeTaskId, { status: "Completed" });
-  }
-});
-
 ensureSeedData();
-populateFilters();
 
 if (hasSession()) {
   loginShell.classList.add("is-hidden");
   dashboardApp.classList.remove("is-hidden");
   logoutButton.classList.remove("is-hidden");
-  rerender();
+  renderPlanner();
 }

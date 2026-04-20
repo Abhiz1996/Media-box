@@ -47,7 +47,8 @@ function ensureDefaultTeams() {
     "Design Team",
     "Content Team",
     "PR Team",
-    "Social Media Team"
+    "Social Media Team",
+    "Daily Digest Team"
   ]);
 }
 
@@ -301,6 +302,16 @@ function getSummarySections(payload) {
     });
   }
 
+  if (payload.category === "Daily Digest") {
+    sections.push({
+      title: "Daily Digest Details",
+      rows: [
+        ["Request Type", "Daily Digest"],
+        ["Status", "Will be grouped with live activity tracking in the workflow planner"]
+      ]
+    });
+  }
+
   if (!payload.category) {
     sections.push({
       title: "Open Request Notes",
@@ -392,6 +403,12 @@ function createTaskTitle(payload) {
     );
   }
 
+  if (payload.category === "Daily Digest") {
+    return payload.employeeName
+      ? `Daily digest request from ${payload.employeeName}`
+      : "New daily digest request";
+  }
+
   return payload.employeeName
     ? `Open request from ${payload.employeeName}`
     : "Unclassified media request";
@@ -404,6 +421,7 @@ function createTaskSummary(payload) {
     || payload.prWhySignificant
     || payload.prEventAnnouncement
     || payload.postEventTaggingDetails
+    || (payload.category === "Daily Digest" ? "Track this under the daily digest flow." : "")
     || "Awaiting more details"
   );
 }
@@ -424,7 +442,13 @@ function saveSubmissionLocally(payload) {
     department: payload.department || "Unassigned",
     requesterName: payload.employeeName || "Unknown requester",
     status: "Will Do",
-    team: payload.category === "PR" ? "PR Team" : "Content Team",
+    team: payload.category === "PR"
+      ? "PR Team"
+      : payload.category === "Daily Digest"
+        ? "Daily Digest Team"
+        : payload.category === "Social Media"
+          ? "Social Media Team"
+          : "Content Team",
     assignee: "To be assigned",
     priority: payload.category === "PR" ? "High Touch" : "Standard",
     summary: createTaskSummary(payload),
