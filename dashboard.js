@@ -247,25 +247,26 @@ function renderMetrics(tasks) {
   const ongoingCount = tasks.filter((task) => task.status === "Ongoing").length;
   const completedCount = tasks.filter((task) => task.status === "Completed").length;
   const prCount = tasks.filter((task) => task.category === "PR").length;
+  const assignedCount = tasks.filter((task) => task.assignee && task.assignee !== "To be assigned").length;
 
   metricsGrid.innerHTML = `
     <article class="metric-card">
-      <p class="eyebrow">Queue</p>
+      <p class="metric-label">Queue</p>
       <strong>${tasks.length}</strong>
       <span>Total cards across all categories</span>
     </article>
     <article class="metric-card">
-      <p class="eyebrow">Live Work</p>
+      <p class="metric-label">Live Work</p>
       <strong>${ongoingCount}</strong>
       <span>Items currently in production or review</span>
     </article>
     <article class="metric-card">
-      <p class="eyebrow">Ready Next</p>
-      <strong>${willDoCount}</strong>
-      <span>Requests waiting for assignment or kickoff</span>
+      <p class="metric-label">Assigned</p>
+      <strong>${assignedCount}</strong>
+      <span>Cards already mapped to an owner or team lead</span>
     </article>
     <article class="metric-card">
-      <p class="eyebrow">PR Focus</p>
+      <p class="metric-label">PR Focus</p>
       <strong>${prCount}</strong>
       <span>Press-release work currently in the system</span>
     </article>
@@ -283,6 +284,11 @@ function createTaskCard(task) {
   card.dataset.taskId = task.id;
 
   const categoryClass = task.category === "PR" ? "pill is-pr" : "pill";
+  const ownerInitial = (task.assignee && task.assignee !== "To be assigned")
+    ? task.assignee.trim().charAt(0).toUpperCase()
+    : task.team.trim().charAt(0).toUpperCase();
+  const dueLabel = task.dueText ? formatDate(task.dueText) : "No due date";
+  const taskType = task.socialType || task.category;
 
   card.innerHTML = `
     <div class="task-topline">
@@ -291,14 +297,32 @@ function createTaskCard(task) {
     </div>
     <h4 class="task-title">${sanitizeText(task.title)}</h4>
     <p class="task-subtitle">${sanitizeText(task.summary)}</p>
-    <div class="task-meta">
-      <p>${sanitizeText(task.requesterName)}</p>
-      <p>${sanitizeText(task.department)}</p>
-      <p>${sanitizeText(task.team)}</p>
+    <div class="task-meta-grid">
+      <div class="task-meta-card">
+        <span class="task-meta-label">Due date</span>
+        <strong>${sanitizeText(dueLabel)}</strong>
+      </div>
+      <div class="task-meta-card">
+        <span class="task-meta-label">Owner</span>
+        <div class="task-owner-row">
+          <span class="task-owner-avatar">${sanitizeText(ownerInitial)}</span>
+          <strong>${sanitizeText(task.assignee)}</strong>
+        </div>
+      </div>
     </div>
-    <div class="task-tags">
-      <span class="chip-stat">Assignee: ${sanitizeText(task.assignee)}</span>
-      <span class="chip-stat">${sanitizeText(formatDate(task.dueText))}</span>
+    <div class="task-automation-list">
+      <span class="automation-chip">
+        <strong>${sanitizeText(taskType)}</strong>
+        <small>workflow type</small>
+      </span>
+      <span class="automation-chip">
+        <strong>${sanitizeText(task.team)}</strong>
+        <small>assigned team</small>
+      </span>
+      <span class="automation-chip">
+        <strong>${sanitizeText(task.department)}</strong>
+        <small>origin department</small>
+      </span>
     </div>
   `;
 

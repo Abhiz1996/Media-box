@@ -40,7 +40,7 @@
           <p class="eyebrow">Protected Workspace</p>
           <h1>Sign in to the workflow desk.</h1>
           <p>
-            This is a rough backend-style page with a visual board, request segregation, assignments, and live progress controls.
+            Access the internal operations board for request segregation, assignments, due dates, and live status tracking.
           </p>
 
           <form class="login-form" id="loginForm">
@@ -73,12 +73,19 @@
         <div class="dashboard-grid">
           <section>
             <div class="panel">
-              <div class="section-heading">
-                <p class="eyebrow">Workflow Designer</p>
-                <h2>Track live work like a media ops board</h2>
-                <p>
-                  Filter incoming requests, move cards between stages, assign teams, and open each request as a working document.
-                </p>
+              <div class="workflow-hero">
+                <div class="section-heading">
+                  <p class="eyebrow">Workflow Designer</p>
+                  <h2>Track live work like a media operations board</h2>
+                  <p>
+                    Filter incoming requests, move cards between stages, assign teams, and open each request as a working document.
+                  </p>
+                </div>
+
+                <div class="workflow-hero-note">
+                  <strong>Board rhythm</strong>
+                  <span>Review incoming briefs, assign ownership, set due dates, and move every request toward publication.</span>
+                </div>
               </div>
 
               <div class="toolbar-grid">
@@ -114,35 +121,89 @@
               </div>
 
               <div class="workflow-board">
-                <section class="lane" data-lane="Will Do">
+                <section class="lane lane-will-do" data-lane="Will Do">
                   <div class="lane-header">
                     <div>
                       <h3>Will Do</h3>
                       <p>New briefs and upcoming work</p>
                     </div>
+                    <button class="lane-menu" type="button" aria-label="More options">⋮</button>
+                  </div>
+                  <div class="lane-meta">
+                    <div class="lane-meta-block">
+                      <span>Due date for list</span>
+                      <p>Set per card</p>
+                    </div>
+                    <div class="lane-meta-block">
+                      <span>Task list owners</span>
+                      <div class="lane-owners">
+                        <span class="owner-avatar">PR</span>
+                        <span class="owner-avatar">SM</span>
+                        <span class="owner-avatar owner-avatar-add">+</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="lane-toolbar">
                     <span class="lane-count" data-count-for="Will Do">0</span>
+                    <span class="lane-caption">Ready for intake review</span>
                   </div>
                   <div class="lane-cards" data-lane-cards="Will Do"></div>
                 </section>
 
-                <section class="lane" data-lane="Ongoing">
+                <section class="lane lane-ongoing" data-lane="Ongoing">
                   <div class="lane-header">
                     <div>
                       <h3>Ongoing</h3>
                       <p>Active production and review</p>
                     </div>
+                    <button class="lane-menu" type="button" aria-label="More options">⋮</button>
+                  </div>
+                  <div class="lane-meta">
+                    <div class="lane-meta-block">
+                      <span>Due date for list</span>
+                      <p>Tracked per deliverable</p>
+                    </div>
+                    <div class="lane-meta-block">
+                      <span>Task list owners</span>
+                      <div class="lane-owners">
+                        <span class="owner-avatar">DS</span>
+                        <span class="owner-avatar">CT</span>
+                        <span class="owner-avatar owner-avatar-add">+</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="lane-toolbar">
                     <span class="lane-count" data-count-for="Ongoing">0</span>
+                    <span class="lane-caption">In production now</span>
                   </div>
                   <div class="lane-cards" data-lane-cards="Ongoing"></div>
                 </section>
 
-                <section class="lane" data-lane="Completed">
+                <section class="lane lane-completed" data-lane="Completed">
                   <div class="lane-header">
                     <div>
                       <h3>Completed</h3>
                       <p>Published or handed off</p>
                     </div>
+                    <button class="lane-menu" type="button" aria-label="More options">⋮</button>
+                  </div>
+                  <div class="lane-meta">
+                    <div class="lane-meta-block">
+                      <span>Due date for list</span>
+                      <p>Archive by campaign</p>
+                    </div>
+                    <div class="lane-meta-block">
+                      <span>Task list owners</span>
+                      <div class="lane-owners">
+                        <span class="owner-avatar">AR</span>
+                        <span class="owner-avatar">PO</span>
+                        <span class="owner-avatar owner-avatar-add">+</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="lane-toolbar">
                     <span class="lane-count" data-count-for="Completed">0</span>
+                    <span class="lane-caption">Ready for record and reporting</span>
                   </div>
                   <div class="lane-cards" data-lane-cards="Completed"></div>
                 </section>

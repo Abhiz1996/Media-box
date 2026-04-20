@@ -127,6 +127,20 @@ a {
   gap: 12px;
 }
 
+.login-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 16px;
+  border: 1px solid rgba(18, 33, 43, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--teal-deep);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
 .primary-link,
 .ghost-link,
 .primary-button,
@@ -203,6 +217,16 @@ a {
   padding: clamp(26px, 4vw, 42px);
 }
 
+.hero-panel-clean {
+  grid-template-columns: 1fr;
+  min-height: 420px;
+  align-items: center;
+  background:
+    radial-gradient(circle at top right, rgba(207, 109, 76, 0.12), transparent 24%),
+    radial-gradient(circle at left center, rgba(15, 122, 118, 0.12), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 251, 246, 0.95));
+}
+
 .hero-copy h1,
 .section-heading h2,
 .section-title h3,
@@ -220,6 +244,10 @@ a {
   font-size: clamp(2.8rem, 6vw, 5rem);
   line-height: 0.95;
   max-width: 12ch;
+}
+
+.hero-panel-clean .hero-copy {
+  max-width: 760px;
 }
 
 .hero-text,
@@ -248,6 +276,34 @@ a {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   margin-top: 28px;
+}
+
+.workflow-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.workflow-hero-note {
+  max-width: 320px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(247, 250, 250, 0.82);
+}
+
+.workflow-hero-note strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--teal-deep);
+}
+
+.workflow-hero-note span {
+  color: var(--muted);
+  line-height: 1.7;
 }
 
 .hero-metrics article,
@@ -605,6 +661,16 @@ textarea:focus {
 
 .metric-card {
   padding: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(247, 248, 250, 0.92));
+}
+
+.metric-label {
+  margin: 0 0 8px;
+  color: var(--teal-deep);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .metric-card p,
@@ -642,7 +708,9 @@ textarea:focus {
 }
 
 .lane {
-  padding: 18px;
+  padding: 0 16px 16px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(244, 245, 247, 0.96));
 }
 
 .lane-header {
@@ -650,7 +718,9 @@ textarea:focus {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 16px;
+  margin: 0 -16px 0;
+  padding: 18px 16px;
+  color: #fff;
 }
 
 .lane h3 {
@@ -658,7 +728,7 @@ textarea:focus {
 }
 
 .lane-header p {
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.9rem;
 }
 
@@ -673,6 +743,91 @@ textarea:focus {
   background: rgba(15, 122, 118, 0.1);
   color: var(--teal-deep);
   font-weight: 800;
+}
+
+.lane-will-do .lane-header {
+  background: linear-gradient(135deg, #ff6a1a, #f15a24);
+}
+
+.lane-ongoing .lane-header {
+  background: linear-gradient(135deg, #1db970, #0e9b87);
+}
+
+.lane-completed .lane-header {
+  background: linear-gradient(135deg, #f4a62a, #eb8d17);
+}
+
+.lane-menu {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.lane-meta {
+  display: grid;
+  gap: 12px;
+  padding: 16px 2px 12px;
+}
+
+.lane-meta-block {
+  display: grid;
+  gap: 8px;
+}
+
+.lane-meta-block span {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.lane-meta-block p {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.lane-owners {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.owner-avatar,
+.task-owner-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(15, 122, 118, 0.12), rgba(207, 109, 76, 0.16));
+  color: var(--teal-deep);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.owner-avatar-add {
+  border: 1px dashed rgba(18, 33, 43, 0.18);
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.lane-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.lane-caption {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .lane-cards {
@@ -691,10 +846,12 @@ textarea:focus {
 }
 
 .task-card {
-  padding: 18px;
+  padding: 16px;
   border-radius: 24px;
   border: 1px solid var(--line);
   cursor: grab;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(249, 250, 251, 0.98));
+  box-shadow: 0 14px 26px rgba(18, 33, 43, 0.08);
 }
 
 .task-card.dragging {
@@ -767,6 +924,71 @@ textarea:focus {
   background: rgba(18, 33, 43, 0.05);
   color: var(--muted);
   font-size: 0.88rem;
+}
+
+.task-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.task-meta-card {
+  padding: 12px;
+  border: 1px solid rgba(18, 33, 43, 0.08);
+  border-radius: 16px;
+  background: #f7f9fa;
+}
+
+.task-meta-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.task-meta-card strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.task-owner-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.task-owner-row .task-owner-avatar {
+  width: 30px;
+  height: 30px;
+}
+
+.task-automation-list {
+  display: grid;
+  gap: 10px;
+}
+
+.automation-chip {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(11, 136, 192, 0.28);
+  border-left: 4px solid #1e95cf;
+  border-radius: 14px;
+  background: #f8fcff;
+}
+
+.automation-chip strong {
+  color: #0d7db0;
+  font-size: 1rem;
+}
+
+.automation-chip small {
+  color: var(--muted);
 }
 
 .sidebar-stack {
@@ -942,6 +1164,10 @@ textarea:focus {
   .workflow-board,
   .hero-metrics,
   .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .task-meta-grid {
     grid-template-columns: 1fr;
   }
 
