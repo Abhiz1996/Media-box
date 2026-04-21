@@ -18,7 +18,6 @@ const dashboardApp = document.querySelector("#dashboardApp");
 const loginForm = document.querySelector("#loginForm");
 const loginStatus = document.querySelector("#loginStatus");
 const logoutButton = document.querySelector("#logoutButton");
-const metricsGrid = document.querySelector("#metricsGrid");
 const categoryTabs = document.querySelector("#categoryTabs");
 const monitorTableBody = document.querySelector("#monitorTableBody");
 const archiveGroups = document.querySelector("#archiveGroups");
@@ -162,48 +161,6 @@ function getRecentArchiveGroups() {
   }, {});
 
   return Object.entries(grouped).slice(0, 2);
-}
-
-function renderMetrics() {
-  const tasks = getTasks();
-  const activeTasks = getActiveTasks();
-  const ongoingCount = tasks.filter((task) => task.status === "Ongoing").length;
-  const completedCount = tasks.filter((task) => task.status === "Completed").length;
-  const highPriorityCount = tasks.filter((task) => task.priority === "High Touch" || task.priority === "Fast Turnaround").length;
-  const dailyDigestLive = activeTasks.filter((task) => task.category === "Daily Digest").length;
-
-  metricsGrid.innerHTML = `
-    <article class="ops-metric-card">
-      <p>Total</p>
-      <strong>${tasks.length}</strong>
-      <span>All requests</span>
-    </article>
-    <article class="ops-metric-card">
-      <p>Open</p>
-      <strong>${activeTasks.filter((task) => task.status === "Will Do").length}</strong>
-      <span>Waiting to be picked up</span>
-    </article>
-    <article class="ops-metric-card">
-      <p>In progress</p>
-      <strong>${ongoingCount}</strong>
-      <span>Being handled now</span>
-    </article>
-    <article class="ops-metric-card">
-      <p>Resolved</p>
-      <strong>${completedCount}</strong>
-      <span>Moved to repository</span>
-    </article>
-    <article class="ops-metric-card">
-      <p>High priority</p>
-      <strong>${highPriorityCount}</strong>
-      <span>Needs close attention</span>
-    </article>
-    <article class="ops-metric-card">
-      <p>Daily Digest live</p>
-      <strong>${dailyDigestLive}</strong>
-      <span>Tracked in active monitor</span>
-    </article>
-  `;
 }
 
 function renderCategoryTabs() {
@@ -378,7 +335,6 @@ function exportCsv() {
 
 function renderMonitor() {
   populateCategoryFilter();
-  renderMetrics();
   renderCategoryTabs();
   renderTable();
   renderArchive();
