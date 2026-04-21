@@ -21,6 +21,7 @@ const socialTypeInputs = Array.from(document.querySelectorAll('input[name="socia
 const socialTypeSections = Array.from(document.querySelectorAll("[data-social-branch]"));
 const stepPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 const progressSteps = Array.from(document.querySelectorAll("[data-progress-step]"));
+const mediaPreviewBlocks = Array.from(document.querySelectorAll("[data-media-preview]"));
 
 let currentStep = "intro";
 
@@ -85,12 +86,79 @@ function clearHiddenSectionFields(section) {
   });
 }
 
+function isDirectImageUrl(value) {
+  return /^https?:\/\/.+\.(png|jpe?g|gif|webp|svg|avif)(\?.*)?$/i.test(String(value || "").trim());
+}
+
+function updateMediaPreview(previewBlock) {
+  const frame = previewBlock.querySelector("[data-media-frame]");
+  const copy = previewBlock.querySelector("[data-media-copy]");
+  const fileInput = previewBlock.querySelector("[data-media-file]");
+  const urlInput = previewBlock.parentElement.querySelector("[data-media-url]");
+  const messageInput = previewBlock.parentElement.querySelector("[data-media-message]");
+  const messageText = String(messageInput?.value || "").trim();
+  const urlValue = String(urlInput?.value || "").trim();
+  const selectedFile = fileInput?.files?.[0];
+  const previousObjectUrl = previewBlock.dataset.objectUrl;
+
+  if (previousObjectUrl && !selectedFile) {
+    URL.revokeObjectURL(previousObjectUrl);
+    delete previewBlock.dataset.objectUrl;
+  }
+
+  if (selectedFile) {
+    if (previousObjectUrl) {
+      URL.revokeObjectURL(previousObjectUrl);
+    }
+    const objectUrl = URL.createObjectURL(selectedFile);
+    previewBlock.dataset.objectUrl = objectUrl;
+    frame.innerHTML = `<img src="${objectUrl}" alt="Selected visual reference" class="media-preview-image">`;
+  } else if (isDirectImageUrl(urlValue)) {
+    frame.innerHTML = `<img src="${sanitizeText(urlValue)}" alt="Linked visual reference" class="media-preview-image">`;
+  } else if (urlValue) {
+    frame.innerHTML = `
+      <div class="media-preview-link-state">
+        <strong>Media link added</strong>
+        <span>The pasted link is ready, but only direct image URLs can preview here.</span>
+      </div>
+    `;
+  } else {
+    frame.innerHTML = `
+      <div class="media-preview-empty">
+        Add a local image or paste a direct image URL to keep it visible here.
+      </div>
+    `;
+  }
+
+  copy.textContent = messageText || "Your draft message will appear here as you type.";
+}
+
+function setupMediaPreviews() {
+  mediaPreviewBlocks.forEach((previewBlock) => {
+    const fileInput = previewBlock.querySelector("[data-media-file]");
+    const urlInput = previewBlock.parentElement.querySelector("[data-media-url]");
+    const messageInput = previewBlock.parentElement.querySelector("[data-media-message]");
+
+    [fileInput, urlInput, messageInput].filter(Boolean).forEach((field) => {
+      field.addEventListener("input", () => updateMediaPreview(previewBlock));
+      field.addEventListener("change", () => updateMediaPreview(previewBlock));
+    });
+
+    updateMediaPreview(previewBlock);
+  });
+}
+
+function refreshMediaPreviews() {
+  mediaPreviewBlocks.forEach((previewBlock) => updateMediaPreview(previewBlock));
+}
+
 function showStep(stepName) {
   currentStep = stepName;
   stepPanels.forEach((panel) => {
     panel.classList.toggle("hidden", panel.dataset.stepPanel !== stepName);
   });
   updateProgress(stepName);
+  refreshMediaPreviews();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -143,6 +211,7 @@ function toggleSocialTypeBranches() {
   });
 
   updateChoiceCards();
+  refreshMediaPreviews();
 }
 
 function goForwardFromIntro() {
@@ -510,6 +579,8 @@ printSummaryButtons.forEach((button) => {
     window.print();
   });
 });
+
+setupMediaPreviews();
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
