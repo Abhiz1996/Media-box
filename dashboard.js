@@ -19,19 +19,10 @@ const loginForm = document.querySelector("#loginForm");
 const loginStatus = document.querySelector("#loginStatus");
 const logoutButton = document.querySelector("#logoutButton");
 const metricsGrid = document.querySelector("#metricsGrid");
+const categoryTabs = document.querySelector("#categoryTabs");
 const monitorTableBody = document.querySelector("#monitorTableBody");
 const archiveGroups = document.querySelector("#archiveGroups");
 const exportButton = document.querySelector("#exportButton");
-const editorPanel = document.querySelector("#editorPanel");
-const editorTitle = document.querySelector("#editorTitle");
-const editorSummary = document.querySelector("#editorSummary");
-const editorMeta = document.querySelector("#editorMeta");
-const editorStatus = document.querySelector("#editorStatus");
-const editorTeam = document.querySelector("#editorTeam");
-const editorAssignee = document.querySelector("#editorAssignee");
-const editorNotes = document.querySelector("#editorNotes");
-const saveTaskButton = document.querySelector("#saveTaskButton");
-const closeEditorButton = document.querySelector("#closeEditorButton");
 
 const filters = {
   search: document.querySelector("#searchInput"),
@@ -39,9 +30,7 @@ const filters = {
   category: document.querySelector("#categoryFilter"),
   priority: document.querySelector("#priorityFilter")
 };
-
-const urlState = new URL(window.location.href);
-let selectedTaskId = urlState.searchParams.get("task") || "";
+let activeCategoryTab = "";
 
 function readJsonStorage(key, fallback) {
   try {
@@ -144,23 +133,12 @@ function getVisibleTasks() {
     ].some((value) => String(value || "").toLowerCase().includes(searchTerm));
 
     const matchesStatus = !filters.status.value || task.status === filters.status.value;
-    const matchesCategory = !filters.category.value || task.category === filters.category.value;
+    const categoryValue = filters.category.value || activeCategoryTab;
+    const matchesCategory = !categoryValue || task.category === categoryValue;
     const matchesPriority = !filters.priority.value || task.priority === filters.priority.value;
 
     return matchesSearch && matchesStatus && matchesCategory && matchesPriority;
   });
-}
-
-function syncUrlState() {
-  const nextUrl = new URL(window.location.href);
-
-  if (selectedTaskId) {
-    nextUrl.searchParams.set("task", selectedTaskId);
-  } else {
-    nextUrl.searchParams.delete("task");
-  }
-
-  window.history.replaceState({}, "", nextUrl.toString());
 }
 
 function getRecentArchiveGroups() {
@@ -228,6 +206,32 @@ function renderMetrics() {
   `;
 }
 
+function renderCategoryTabs() {
+  const activeTasks = getActiveTasks();
+  const categories = ["PR", "Social Media", "Daily Digest", "Achievements"];
+
+  categoryTabs.innerHTML = categories.map((category) => {
+    const count = activeTasks.filter((task) => task.category === category).length;
+    const isActive = activeCategoryTab === category;
+    return `
+      <button class="ops-category-tab${isActive ? " is-active" : ""}" type="button" data-category-tab="${sanitizeText(category)}">
+        <span>${sanitizeText(category)}</span>
+        <strong>${count}</strong>
+        <small>Open works</small>
+      </button>
+    `;
+  }).join("");
+
+  categoryTabs.querySelectorAll("[data-category-tab]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const nextCategory = button.dataset.categoryTab;
+      activeCategoryTab = activeCategoryTab === nextCategory ? "" : nextCategory;
+      filters.category.value = "";
+      renderMonitor();
+    });
+  });
+}
+
 function renderTable() {
   const tasks = getVisibleTasks();
   monitorTableBody.innerHTML = "";
@@ -235,7 +239,7 @@ function renderTable() {
   if (!tasks.length) {
     monitorTableBody.innerHTML = `
       <tr>
-        <td colspan="8">
+        <td colspan="7">
           <div class="ops-empty-cell">No active requests match the current filters.</div>
         </td>
       </tr>
@@ -254,23 +258,57 @@ function renderTable() {
         <small>${sanitizeText(task.summary)}</small>
       </td>
       <td>${sanitizeText(task.category)}</td>
-      <td><span class="ops-priority-pill ${priorityClass}">${sanitizeText(task.priority)}</span></td>
-      <td><span class="ops-status-pill ${statusClass}">${sanitizeText(task.status)}</span></td>
+      <td>
+        <select class="ops-table-select ops-table-priority ${priorityClass}" data-priority-task="${sanitizeText(task.id)}">
+          <option value="Standard"${task.priority === "Standard" ? " selected" : ""}>Standard</option>
+          <option value="High Touch"${task.priority === "High Touch" ? " selected" : ""}>High Touch</option>
+          <option value="Fast Turnaround"${task.priority === "Fast Turnaround" ? " selected" : ""}>Fast Turnaround</option>
+        </select>
+      </td>
+      <td>
+        <select class="ops-table-select ops-table-status ${statusClass}" data-status-task="${sanitizeText(task.id)}">
+          <option value="Will Do"${task.status === "Will Do" ? " selected" : ""}>Will Do</option>
+          <option value="Ongoing"${task.status === "Ongoing" ? " selected" : ""}>Ongoing</option>
+          <option value="Completed"${task.status === "Completed" ? " selected" : ""}>Completed</option>
+        </select>
+      </td>
       <td>${sanitizeText(formatDate(task.createdAt))}</td>
       <td>${sanitizeText(task.assignee)}</td>
-      <td><button class="ops-ghost-button ops-inline-button" type="button" data-open-task="${sanitizeText(task.id)}">Open</button></td>
     `;
     monitorTableBody.appendChild(row);
   });
 
-  monitorTableBody.querySelectorAll("[data-open-task]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const taskId = button.dataset.openTask;
-      const targetUrl = new URL(window.location.href);
-      targetUrl.searchParams.set("task", taskId);
-      window.open(targetUrl.toString(), "_blank", "noopener,noreferrer");
+  monitorTableBody.querySelectorAll("[data-priority-task]").forEach((select) => {
+    select.addEventListener("change", () => {
+      updateTask(select.dataset.priorityTask, { priority: select.value });
     });
   });
+
+  monitorTableBody.querySelectorAll("[data-status-task]").forEach((select) => {
+    select.addEventListener("change", () => {
+      updateTask(select.dataset.statusTask, { status: select.value });
+    });
+  });
+}
+
+function updateTask(taskId, updates) {
+  const hasStatusUpdate = Object.prototype.hasOwnProperty.call(updates, "status");
+  const tasks = getTasks().map((task) => (
+    task.id === taskId
+      ? {
+          ...task,
+          ...updates,
+          completedAt: hasStatusUpdate
+            ? updates.status === "Completed"
+              ? task.completedAt || new Date().toISOString()
+              : ""
+            : task.completedAt || ""
+        }
+      : task
+  ));
+
+  setTasks(tasks);
+  renderMonitor();
 }
 
 function renderArchive() {
@@ -309,63 +347,6 @@ function renderArchive() {
   });
 }
 
-function getSelectedTask() {
-  return getTasks().find((task) => task.id === selectedTaskId) || null;
-}
-
-function renderEditor() {
-  const task = getSelectedTask();
-
-  if (!task) {
-    editorPanel.classList.add("is-hidden");
-    return;
-  }
-
-  editorPanel.classList.remove("is-hidden");
-  editorTitle.textContent = task.title;
-  editorSummary.textContent = task.summary;
-  const teamOptions = Array.from(new Set([...getTeams(), task.team].filter(Boolean)));
-  editorMeta.innerHTML = `
-    <span>${sanitizeText(task.category)}</span>
-    <span>${sanitizeText(task.requesterName)}</span>
-    <span>${sanitizeText(task.department)}</span>
-    <span>${sanitizeText(formatDate(task.createdAt))}</span>
-  `;
-
-  editorStatus.value = task.status;
-  editorTeam.innerHTML = teamOptions
-    .map((team) => `<option value="${sanitizeText(team)}"${task.team === team ? " selected" : ""}>${sanitizeText(team)}</option>`)
-    .join("");
-  editorAssignee.value = task.assignee;
-  editorNotes.value = task.notes || "";
-}
-
-function updateTask(taskId, updates) {
-  const hasStatusUpdate = Object.prototype.hasOwnProperty.call(updates, "status");
-  const tasks = getTasks().map((task) => (
-    task.id === taskId
-      ? {
-          ...task,
-          ...updates,
-          completedAt: hasStatusUpdate
-            ? updates.status === "Completed"
-              ? task.completedAt || new Date().toISOString()
-              : ""
-            : task.completedAt || ""
-        }
-      : task
-  ));
-
-  setTasks(tasks);
-
-  const updatedTask = tasks.find((task) => task.id === taskId);
-  if (!updatedTask || updatedTask.status === "Completed") {
-    selectedTaskId = "";
-  }
-
-  renderMonitor();
-}
-
 function exportCsv() {
   const tasks = getVisibleTasks();
   const rows = [
@@ -398,15 +379,18 @@ function exportCsv() {
 function renderMonitor() {
   populateCategoryFilter();
   renderMetrics();
+  renderCategoryTabs();
   renderTable();
   renderArchive();
-  renderEditor();
-  syncUrlState();
 }
 
 [filters.search, filters.status, filters.category, filters.priority].forEach((element) => {
   element.addEventListener("input", renderMonitor);
   element.addEventListener("change", renderMonitor);
+});
+
+filters.category.addEventListener("change", () => {
+  activeCategoryTab = "";
 });
 
 loginForm.addEventListener("submit", (event) => {
@@ -432,28 +416,9 @@ loginForm.addEventListener("submit", (event) => {
 
 logoutButton.addEventListener("click", () => {
   setSession(false);
-  selectedTaskId = "";
   dashboardApp.classList.add("is-hidden");
   loginShell.classList.remove("is-hidden");
   logoutButton.classList.add("is-hidden");
-});
-
-saveTaskButton.addEventListener("click", () => {
-  if (!selectedTaskId) {
-    return;
-  }
-
-  updateTask(selectedTaskId, {
-    status: editorStatus.value,
-    team: editorTeam.value,
-    assignee: editorAssignee.value.trim() || "To be assigned",
-    notes: editorNotes.value.trim()
-  });
-});
-
-closeEditorButton.addEventListener("click", () => {
-  selectedTaskId = "";
-  renderMonitor();
 });
 
 exportButton.addEventListener("click", exportCsv);

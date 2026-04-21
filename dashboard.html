@@ -44,7 +44,7 @@
           <p class="ops-kicker">Protected Workspace</p>
           <h1>Sign in to the workflow monitor.</h1>
           <p>
-            Track active requests, open a workflow control view, and move completed work into the recent repository.
+            Track active requests, update status and priority inline, and move completed work into the recent repository.
           </p>
 
           <form class="ops-login-form" id="loginForm">
@@ -71,6 +71,8 @@
 
       <section class="is-hidden" id="dashboardApp">
         <div class="ops-metrics-grid" id="metricsGrid"></div>
+
+        <section class="ops-category-tabs" id="categoryTabs"></section>
 
         <section class="ops-panel">
           <div class="ops-filter-row">
@@ -115,50 +117,10 @@
                   <th>Status</th>
                   <th>Date</th>
                   <th>Assigned</th>
-                  <th>Action</th>
                 </tr>
               </thead>
               <tbody id="monitorTableBody"></tbody>
             </table>
-          </div>
-        </section>
-
-        <section class="ops-panel ops-editor-panel is-hidden" id="editorPanel">
-          <div class="ops-editor-header">
-            <div>
-              <p class="ops-kicker">Workflow Controls</p>
-              <h2 id="editorTitle">Selected request</h2>
-              <p id="editorSummary"></p>
-            </div>
-            <div class="ops-editor-meta" id="editorMeta"></div>
-          </div>
-
-          <div class="ops-editor-grid">
-            <label class="ops-field">
-              <span>Status</span>
-              <select id="editorStatus">
-                <option>Will Do</option>
-                <option>Ongoing</option>
-                <option>Completed</option>
-              </select>
-            </label>
-            <label class="ops-field">
-              <span>Assigned Team</span>
-              <select id="editorTeam"></select>
-            </label>
-            <label class="ops-field">
-              <span>Assignee</span>
-              <input type="text" id="editorAssignee" placeholder="Add assignee">
-            </label>
-            <label class="ops-field ops-field-wide">
-              <span>Notes</span>
-              <textarea id="editorNotes" rows="4" placeholder="Add workflow notes"></textarea>
-            </label>
-          </div>
-
-          <div class="ops-editor-actions">
-            <button class="ops-primary-button" id="saveTaskButton" type="button">Save changes</button>
-            <button class="ops-ghost-button" id="closeEditorButton" type="button">Close</button>
           </div>
         </section>
 

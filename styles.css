@@ -1887,6 +1887,46 @@ body.ops-theme {
   margin-bottom: 24px;
 }
 
+.ops-category-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.ops-category-tab {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(31, 37, 44, 0.92), rgba(22, 28, 35, 0.96));
+  color: #edf1f4;
+  text-align: left;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+}
+
+.ops-category-tab span,
+.ops-category-tab small {
+  color: rgba(237, 241, 244, 0.6);
+  font-weight: 700;
+}
+
+.ops-category-tab strong {
+  color: #fff;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.ops-category-tab.is-active {
+  border-color: rgba(15, 122, 118, 0.42);
+  background:
+    radial-gradient(circle at top right, rgba(15, 122, 118, 0.12), transparent 30%),
+    linear-gradient(180deg, rgba(31, 37, 44, 0.96), rgba(20, 25, 31, 1));
+  box-shadow: 0 22px 56px rgba(15, 122, 118, 0.14);
+}
+
 .ops-metric-card {
   padding: 20px;
 }
@@ -2023,6 +2063,35 @@ body.ops-theme {
 .ops-status-completed {
   background: rgba(66, 176, 109, 0.18);
   color: #7ed89f;
+}
+
+.ops-table-select {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #edf1f4;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.ops-table-select.ops-priority-standard,
+.ops-table-select.ops-status-will-do {
+  background-color: rgba(64, 130, 255, 0.14);
+  color: #89b4ff;
+}
+
+.ops-table-select.ops-priority-high-touch,
+.ops-table-select.ops-status-ongoing {
+  background-color: rgba(255, 184, 77, 0.16);
+  color: #ffc96d;
+}
+
+.ops-table-select.ops-priority-fast-turnaround,
+.ops-table-select.ops-status-completed {
+  background-color: rgba(230, 95, 95, 0.16);
+  color: #ff9a9a;
 }
 
 .ops-editor-panel {
@@ -2248,6 +2317,10 @@ body.ops-theme {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .ops-category-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .ops-filter-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2281,6 +2354,7 @@ body.ops-theme {
   }
 
   .ops-metrics-grid,
+  .ops-category-tabs,
   .ops-filter-row {
     grid-template-columns: 1fr;
   }
