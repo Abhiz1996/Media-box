@@ -12,6 +12,7 @@ const DEFAULT_TEAMS = [
   "Social Media Team",
   "Daily Digest Team"
 ];
+const DEFAULT_ASSIGNEES = ["To be assigned", "Abhishek", "Ashitha"];
 
 const loginShell = document.querySelector("#loginShell");
 const dashboardApp = document.querySelector("#dashboardApp");
@@ -54,6 +55,10 @@ function setTasks(tasks) {
 function getTeams() {
   const teams = readJsonStorage(STORAGE_KEYS.teams, []);
   return teams.length ? teams : DEFAULT_TEAMS;
+}
+
+function getAssigneeOptions(task) {
+  return Array.from(new Set([...DEFAULT_ASSIGNEES, task.assignee].filter(Boolean)));
 }
 
 function setSession(isLoggedIn) {
@@ -207,6 +212,7 @@ function renderTable() {
   tasks.forEach((task, index) => {
     const priorityClass = `ops-priority-${sanitizeText(task.priority).toLowerCase().replace(/\s+/g, "-")}`;
     const statusClass = `ops-status-${sanitizeText(task.status).toLowerCase().replace(/\s+/g, "-")}`;
+    const assigneeOptions = getAssigneeOptions(task);
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>MB-${String(index + 1).padStart(3, "0")}</td>
@@ -230,7 +236,13 @@ function renderTable() {
         </select>
       </td>
       <td>${sanitizeText(formatDate(task.createdAt))}</td>
-      <td>${sanitizeText(task.assignee)}</td>
+      <td>
+        <select class="ops-table-select" data-assignee-task="${sanitizeText(task.id)}">
+          ${assigneeOptions.map((assignee) => `
+            <option value="${sanitizeText(assignee)}"${task.assignee === assignee ? " selected" : ""}>${sanitizeText(assignee)}</option>
+          `).join("")}
+        </select>
+      </td>
     `;
     monitorTableBody.appendChild(row);
   });
@@ -244,6 +256,12 @@ function renderTable() {
   monitorTableBody.querySelectorAll("[data-status-task]").forEach((select) => {
     select.addEventListener("change", () => {
       updateTask(select.dataset.statusTask, { status: select.value });
+    });
+  });
+
+  monitorTableBody.querySelectorAll("[data-assignee-task]").forEach((select) => {
+    select.addEventListener("change", () => {
+      updateTask(select.dataset.assigneeTask, { assignee: select.value });
     });
   });
 }
