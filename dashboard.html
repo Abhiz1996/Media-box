@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="Media Box workflow planner for social media, PR, achievements, and daily digest tracking."
+      content="Media Box workflow monitor for PR, social media, achievements, and daily digest operations."
     >
-    <title>Media Box Workflow Planner</title>
+    <title>Media Box Workflow Monitor</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -16,50 +16,51 @@
     >
     <link rel="stylesheet" href="styles.css">
   </head>
-  <body>
-    <div class="ambient-layer" aria-hidden="true"></div>
-
-    <main class="dashboard-shell">
-      <header class="dashboard-topbar">
-        <a class="brand-mark" href="index.html">
-          <span class="brand-mark-dot"></span>
+  <body class="ops-theme">
+    <main class="ops-shell">
+      <header class="ops-topbar">
+        <a class="ops-brand" href="index.html">
+          <span class="ops-brand-mark">MB</span>
           <span>
-            <strong>Media Box Workflow Planner</strong>
-            <small>Form-linked internal tracker</small>
+            <strong>Media Box Workflow Monitor</strong>
+            <small>Operations dashboard</small>
           </span>
         </a>
 
-        <div class="dashboard-actions">
-          <a class="ghost-link" href="index.html">Back to Intake Form</a>
-          <button class="ghost-button is-hidden" id="logoutButton" type="button">Log Out</button>
+        <div class="ops-userbar">
+          <span class="ops-user-chip">MB</span>
+          <span class="ops-user-label">Media Box Admin</span>
+          <button class="ops-ghost-button is-hidden" id="logoutButton" type="button">Sign out</button>
         </div>
       </header>
 
-      <section class="login-shell" id="loginShell">
-        <div class="login-card">
-          <p class="eyebrow">Protected Workspace</p>
-          <h1>Sign in to the workflow planner.</h1>
+      <nav class="ops-nav">
+        <a class="ops-nav-link is-active" href="dashboard.html">Workflow Monitor</a>
+        <a class="ops-nav-link" href="analytics.html">Analytics</a>
+      </nav>
+
+      <section class="ops-login-shell" id="loginShell">
+        <div class="ops-login-card">
+          <p class="ops-kicker">Protected Workspace</p>
+          <h1>Sign in to the workflow monitor.</h1>
           <p>
-            Review the requests coming from the intake form, switch between category tabs,
-            and keep the team aligned with a simple, understandable planner.
+            Track active requests, open a workflow control view, and move completed work into the recent repository.
           </p>
 
-          <form class="login-form" id="loginForm">
-            <label class="login-field">
+          <form class="ops-login-form" id="loginForm">
+            <label class="ops-field">
               <span>Username</span>
               <input type="text" name="username" placeholder="Enter username" autocomplete="username">
             </label>
-
-            <label class="login-field">
+            <label class="ops-field">
               <span>Password</span>
               <input type="password" name="password" placeholder="Enter password" autocomplete="current-password">
             </label>
-
-            <button class="login-button" type="submit">Enter Planner</button>
+            <button class="ops-primary-button" type="submit">Enter monitor</button>
           </form>
 
-          <p class="login-help">
-            Demo access:
+          <p class="ops-help">
+            Demo login:
             <strong>admin</strong>
             /
             <strong>mediabox</strong>
@@ -69,104 +70,108 @@
       </section>
 
       <section class="is-hidden" id="dashboardApp">
-        <div class="metrics-grid" id="metricsGrid"></div>
+        <div class="ops-metrics-grid" id="metricsGrid"></div>
 
-        <section class="panel planner-header-panel">
-          <div class="planner-header">
-            <div class="section-heading">
-              <p class="eyebrow">Workflow Planner</p>
-              <h2>Follow the details coming in from the form</h2>
-              <p>
-                Each tab reflects a request category. The planner highlights what was submitted,
-                who it came from, and the current action state without overcomplicating the workflow.
-              </p>
-            </div>
-          </div>
-
-          <div class="planner-tabs" id="plannerTabs">
-            <button class="planner-tab is-active" type="button" data-planner-tab="social">
-              <span>Social Media Creative</span>
-              <strong id="tabCountSocial">0</strong>
-            </button>
-            <button class="planner-tab" type="button" data-planner-tab="pr">
-              <span>PR</span>
-              <strong id="tabCountPr">0</strong>
-            </button>
-            <button class="planner-tab" type="button" data-planner-tab="achievements">
-              <span>Achievements</span>
-              <strong id="tabCountAchievements">0</strong>
-            </button>
-            <button class="planner-tab" type="button" data-planner-tab="daily-digest">
-              <span>Daily Digest</span>
-              <strong id="tabCountDailyDigest">0</strong>
-            </button>
-          </div>
-
-          <div class="planner-toolbar">
-            <label class="filter-card">
+        <section class="ops-panel">
+          <div class="ops-filter-row">
+            <label class="ops-filter">
               <span>Search</span>
-              <input type="search" id="searchInput" placeholder="Search requester, title, or summary">
+              <input type="search" id="searchInput" placeholder="Search title, requester, ID">
             </label>
-
-            <label class="filter-card">
-              <span>Department</span>
-              <select id="departmentFilter">
-                <option value="">All departments</option>
-              </select>
-            </label>
-
-            <label class="filter-card">
+            <label class="ops-filter">
               <span>Status</span>
               <select id="statusFilter">
-                <option value="">All active states</option>
+                <option value="">All active statuses</option>
                 <option>Will Do</option>
                 <option>Ongoing</option>
               </select>
             </label>
+            <label class="ops-filter">
+              <span>Category</span>
+              <select id="categoryFilter">
+                <option value="">All categories</option>
+              </select>
+            </label>
+            <label class="ops-filter">
+              <span>Priority</span>
+              <select id="priorityFilter">
+                <option value="">All priorities</option>
+                <option>Standard</option>
+                <option>High Touch</option>
+                <option>Fast Turnaround</option>
+              </select>
+            </label>
+            <button class="ops-export-button" id="exportButton" type="button">Export CSV</button>
+          </div>
+
+          <div class="ops-table-shell">
+            <table class="ops-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Assigned</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="monitorTableBody"></tbody>
+            </table>
           </div>
         </section>
 
-        <div class="planner-layout">
-          <section class="panel planner-list-panel">
-            <div class="planner-list-header">
-              <div>
-                <p class="eyebrow" id="plannerEyebrow">Social Media Creative</p>
-                <h3 id="plannerHeading">Requests</h3>
-                <p class="planner-copy" id="plannerCopy"></p>
-              </div>
-              <div class="planner-badge" id="plannerVisibleCount">0 items</div>
+        <section class="ops-panel ops-editor-panel is-hidden" id="editorPanel">
+          <div class="ops-editor-header">
+            <div>
+              <p class="ops-kicker">Workflow Controls</p>
+              <h2 id="editorTitle">Selected request</h2>
+              <p id="editorSummary"></p>
             </div>
+            <div class="ops-editor-meta" id="editorMeta"></div>
+          </div>
 
-            <section class="active-requests-panel">
-              <div class="active-requests-header">
-                <div>
-                  <p class="eyebrow">Active Requests</p>
-                  <h4>Open a workflow workspace in a new tab</h4>
-                </div>
-              </div>
-              <div class="active-request-tabs" id="activeRequestTabs"></div>
-            </section>
+          <div class="ops-editor-grid">
+            <label class="ops-field">
+              <span>Status</span>
+              <select id="editorStatus">
+                <option>Will Do</option>
+                <option>Ongoing</option>
+                <option>Completed</option>
+              </select>
+            </label>
+            <label class="ops-field">
+              <span>Assigned Team</span>
+              <select id="editorTeam"></select>
+            </label>
+            <label class="ops-field">
+              <span>Assignee</span>
+              <input type="text" id="editorAssignee" placeholder="Add assignee">
+            </label>
+            <label class="ops-field ops-field-wide">
+              <span>Notes</span>
+              <textarea id="editorNotes" rows="4" placeholder="Add workflow notes"></textarea>
+            </label>
+          </div>
 
-            <div class="digest-board hidden" id="digestBoard"></div>
-            <div class="planner-list" id="plannerList"></div>
-          </section>
+          <div class="ops-editor-actions">
+            <button class="ops-primary-button" id="saveTaskButton" type="button">Save changes</button>
+            <button class="ops-ghost-button" id="closeEditorButton" type="button">Close</button>
+          </div>
+        </section>
 
-          <aside class="panel planner-detail-panel">
-            <div id="plannerDetail"></div>
-          </aside>
-        </div>
-
-        <section class="panel archive-panel">
+        <section class="ops-panel">
           <div class="section-heading">
-            <p class="eyebrow">Completed Repository</p>
-            <h2>Recent completed work</h2>
+            <p class="eyebrow">Recent Repository</p>
+            <h2>Completed items</h2>
             <p>
-              Completed items are grouped month-wise with only the essential details.
-              The page keeps the latest two months and automatically drops older records from view.
+              Minimal records are grouped month-wise for the latest two months only. Older completed items are removed from the live page view.
             </p>
           </div>
 
-          <div class="archive-groups" id="archiveGroups"></div>
+          <div class="ops-archive-groups" id="archiveGroups"></div>
         </section>
       </section>
     </main>

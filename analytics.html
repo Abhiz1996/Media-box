@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Media Box analytics dashboard for PR, social media, achievements, and daily digest activity."
+    >
+    <title>Media Box Analytics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="ops-theme">
+    <main class="ops-shell">
+      <header class="ops-topbar">
+        <a class="ops-brand" href="index.html">
+          <span class="ops-brand-mark">MB</span>
+          <span>
+            <strong>Media Box Analytics</strong>
+            <small>Performance and workload overview</small>
+          </span>
+        </a>
+
+        <div class="ops-userbar">
+          <span class="ops-user-chip">MB</span>
+          <span class="ops-user-label">Media Box Admin</span>
+          <button class="ops-ghost-button is-hidden" id="logoutButton" type="button">Sign out</button>
+        </div>
+      </header>
+
+      <nav class="ops-nav">
+        <a class="ops-nav-link" href="dashboard.html">Workflow Monitor</a>
+        <a class="ops-nav-link is-active" href="analytics.html">Analytics</a>
+      </nav>
+
+      <section class="ops-login-shell" id="loginShell">
+        <div class="ops-login-card">
+          <p class="ops-kicker">Protected Workspace</p>
+          <h1>Sign in to view analytics.</h1>
+          <p>
+            Track request volume, live workload, completion flow, and category mix across the Media Box desk.
+          </p>
+
+          <form class="ops-login-form" id="loginForm">
+            <label class="ops-field">
+              <span>Username</span>
+              <input type="text" name="username" placeholder="Enter username" autocomplete="username">
+            </label>
+            <label class="ops-field">
+              <span>Password</span>
+              <input type="password" name="password" placeholder="Enter password" autocomplete="current-password">
+            </label>
+            <button class="ops-primary-button" type="submit">Enter analytics</button>
+          </form>
+
+          <p class="ops-help">
+            Demo login:
+            <strong>admin</strong>
+            /
+            <strong>mediabox</strong>
+          </p>
+          <p class="status-message" id="loginStatus" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="is-hidden" id="analyticsApp">
+        <div class="ops-metrics-grid" id="metricsGrid"></div>
+
+        <section class="ops-analytics-grid">
+          <article class="ops-panel">
+            <div class="section-heading">
+              <p class="eyebrow">Category Mix</p>
+              <h2>Request distribution</h2>
+              <p>Where the incoming request load is coming from right now.</p>
+            </div>
+            <div class="ops-bar-list" id="categoryBreakdown"></div>
+          </article>
+
+          <article class="ops-panel">
+            <div class="section-heading">
+              <p class="eyebrow">Status Overview</p>
+              <h2>Current flow</h2>
+              <p>How requests are moving through the desk today.</p>
+            </div>
+            <div class="ops-donut-grid" id="statusBreakdown"></div>
+          </article>
+
+          <article class="ops-panel">
+            <div class="section-heading">
+              <p class="eyebrow">Team Load</p>
+              <h2>Assignment snapshot</h2>
+              <p>Active work grouped by team for easier balancing.</p>
+            </div>
+            <div class="ops-bar-list" id="teamBreakdown"></div>
+          </article>
+
+          <article class="ops-panel">
+            <div class="section-heading">
+              <p class="eyebrow">Recent Closures</p>
+              <h2>Monthly completion trend</h2>
+              <p>Only the latest two months are shown in the live workspace view.</p>
+            </div>
+            <div class="ops-mini-timeline" id="monthlyCompletions"></div>
+          </article>
+        </section>
+
+        <section class="ops-panel">
+          <div class="section-heading">
+            <p class="eyebrow">Live Activity</p>
+            <h2>Active requests</h2>
+            <p>A quick list of requests still moving inside the workflow monitor.</p>
+          </div>
+
+          <div class="ops-table-shell">
+            <table class="ops-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Team</th>
+                  <th>Assignee</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="activeTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="analytics.js"></script>
+  </body>
+</html>
