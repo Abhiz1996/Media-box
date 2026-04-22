@@ -545,6 +545,82 @@ a {
   white-space: pre-wrap;
 }
 
+.upload-field input[type="file"] {
+  min-height: auto;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.field-help {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.upload-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.upload-empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  padding: 20px;
+  border: 1px dashed rgba(18, 33, 43, 0.16);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--muted);
+  text-align: center;
+}
+
+.upload-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.upload-card-image {
+  display: block;
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.upload-card-meta {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+}
+
+.upload-card-meta strong {
+  word-break: break-word;
+}
+
+.upload-card-meta span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.upload-card.is-document {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.upload-card-document {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 100%;
+  min-height: 100%;
+  background: rgba(15, 122, 118, 0.12);
+  color: var(--teal-deep);
+  font-weight: 800;
+}
+
 .field {
   display: grid;
   gap: 10px;

@@ -22,6 +22,7 @@ const socialTypeSections = Array.from(document.querySelectorAll("[data-social-br
 const stepPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 const progressSteps = Array.from(document.querySelectorAll("[data-progress-step]"));
 const mediaPreviewBlocks = Array.from(document.querySelectorAll("[data-media-preview]"));
+const uploadInputs = Array.from(document.querySelectorAll("[data-upload-input]"));
 
 let currentStep = "intro";
 
@@ -90,6 +91,29 @@ function isDirectImageUrl(value) {
   return /^https?:\/\/.+\.(png|jpe?g|gif|webp|svg|avif)(\?.*)?$/i.test(String(value || "").trim());
 }
 
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error(`Could not read file: ${file.name}`));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function serializeUpload(file) {
+  const attachment = {
+    name: file.name,
+    type: file.type || "application/octet-stream",
+    size: file.size
+  };
+
+  if (attachment.type.startsWith("image/")) {
+    attachment.dataUrl = await fileToDataUrl(file);
+  }
+
+  return attachment;
+}
+
 function updateMediaPreview(previewBlock) {
   const frame = previewBlock.querySelector("[data-media-frame]");
   const copy = previewBlock.querySelector("[data-media-copy]");
@@ -152,6 +176,61 @@ function refreshMediaPreviews() {
   mediaPreviewBlocks.forEach((previewBlock) => updateMediaPreview(previewBlock));
 }
 
+function renderUploadPreview(input) {
+  const gallery = input.closest(".field-grid")?.querySelector("[data-upload-gallery]");
+
+  if (!gallery) {
+    return;
+  }
+
+  const files = Array.from(input.files || []);
+
+  if (!files.length) {
+    gallery.innerHTML = `
+      <div class="upload-empty-state">
+        Uploaded posters or images will appear here before submission.
+      </div>
+    `;
+    return;
+  }
+
+  gallery.innerHTML = files.map((file) => {
+    if (file.type.startsWith("image/")) {
+      const previewUrl = URL.createObjectURL(file);
+      return `
+        <article class="upload-card">
+          <img src="${previewUrl}" alt="${sanitizeText(file.name)}" class="upload-card-image">
+          <div class="upload-card-meta">
+            <strong>${sanitizeText(file.name)}</strong>
+            <span>${Math.max(1, Math.round(file.size / 1024))} KB</span>
+          </div>
+        </article>
+      `;
+    }
+
+    return `
+      <article class="upload-card is-document">
+        <div class="upload-card-document">PDF</div>
+        <div class="upload-card-meta">
+          <strong>${sanitizeText(file.name)}</strong>
+          <span>${Math.max(1, Math.round(file.size / 1024))} KB</span>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function setupUploadPreviews() {
+  uploadInputs.forEach((input) => {
+    input.addEventListener("change", () => renderUploadPreview(input));
+    renderUploadPreview(input);
+  });
+}
+
+function refreshUploadPreviews() {
+  uploadInputs.forEach((input) => renderUploadPreview(input));
+}
+
 function showStep(stepName) {
   currentStep = stepName;
   stepPanels.forEach((panel) => {
@@ -159,6 +238,7 @@ function showStep(stepName) {
   });
   updateProgress(stepName);
   refreshMediaPreviews();
+  refreshUploadPreviews();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -212,6 +292,7 @@ function toggleSocialTypeBranches() {
 
   updateChoiceCards();
   refreshMediaPreviews();
+  refreshUploadPreviews();
 }
 
 function goForwardFromIntro() {
@@ -315,7 +396,8 @@ function getSummarySections(payload) {
         ["Date", formatDateValue(payload.postEventDate)],
         ["Location", payload.postEventLocation],
         ["Drive link to photos", payload.postEventPhotoDriveLink],
-        ["Tagging details", payload.postEventTaggingDetails]
+        ["Tagging details", payload.postEventTaggingDetails],
+        ["Uploaded materials", Array.isArray(payload.postEventUploads) ? payload.postEventUploads.map((file) => file.name).join(", ") : ""]
       ]);
     }
 
@@ -327,7 +409,8 @@ function getSummarySections(payload) {
         ["Date", formatDateValue(payload.externalEventDate)],
         ["Location", payload.externalEventLocation],
         ["Creative to be published", payload.externalCreativeToBePublished],
-        ["Tagging links", payload.externalTaggingLinks]
+        ["Tagging links", payload.externalTaggingLinks],
+        ["Uploaded materials", Array.isArray(payload.externalEventUploads) ? payload.externalEventUploads.map((file) => file.name).join(", ") : ""]
       ]);
     }
 
@@ -446,9 +529,27 @@ function buildSummaryMarkup(payload) {
   `;
 }
 
-function formDataToObject() {
+async function formDataToObject() {
   const data = new FormData(form);
-  const payload = Object.fromEntries(data.entries());
+  const payload = {};
+
+  for (const [key, value] of data.entries()) {
+    if (value instanceof File) {
+      if (!value.name) {
+        continue;
+      }
+
+      if (!Array.isArray(payload[key])) {
+        payload[key] = [];
+      }
+
+      payload[key].push(await serializeUpload(value));
+      continue;
+    }
+
+    payload[key] = value;
+  }
+
   payload.submittedAt = new Date().toISOString();
   return payload;
 }
@@ -581,12 +682,13 @@ printSummaryButtons.forEach((button) => {
 });
 
 setupMediaPreviews();
+setupUploadPreviews();
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   setStatus("");
 
-  const payload = formDataToObject();
+  const payload = await formDataToObject();
   saveSubmissionLocally(payload);
 
   summaryCard.innerHTML = buildSummaryMarkup(payload);

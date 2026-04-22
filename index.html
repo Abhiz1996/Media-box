@@ -264,48 +264,33 @@
                 <h3>Post-Event Poster Details</h3>
               </div>
 
-              <div class="compose-layout">
-                <div class="field-grid two-col">
-                  <label class="field">
-                    <span>Title</span>
-                    <input type="text" name="postEventTitle">
-                  </label>
-                  <label class="field">
-                    <span>Date</span>
-                    <input type="date" name="postEventDate">
-                  </label>
-                  <label class="field">
-                    <span>Location</span>
-                    <input type="text" name="postEventLocation">
-                  </label>
-                  <label class="field">
-                    <span>Drive link to photos</span>
-                    <input type="url" name="postEventPhotoDriveLink" placeholder="https://" data-media-url>
-                  </label>
-                  <label class="field full-width">
-                    <span>Tagging details</span>
-                    <textarea name="postEventTaggingDetails" rows="3" placeholder="Mention accounts or URLs to tag" data-media-message></textarea>
-                  </label>
-                </div>
-
-                <aside class="media-side-preview" data-media-preview>
-                  <div class="media-preview-card">
-                    <p class="eyebrow">Visual Reference</p>
-                    <h4>Write with the event visual beside you.</h4>
-                    <label class="field">
-                      <span>Reference image from your device</span>
-                      <input type="file" accept="image/*" data-media-file>
-                    </label>
-                    <div class="media-preview-frame" data-media-frame>
-                      <div class="media-preview-empty">
-                        Add a local image or paste a direct image URL to keep it visible here.
-                      </div>
-                    </div>
-                    <p class="media-preview-copy" data-media-copy>
-                      Your draft message will appear here as you type.
-                    </p>
-                  </div>
-                </aside>
+              <div class="field-grid two-col">
+                <label class="field">
+                  <span>Title</span>
+                  <input type="text" name="postEventTitle">
+                </label>
+                <label class="field">
+                  <span>Date</span>
+                  <input type="date" name="postEventDate">
+                </label>
+                <label class="field">
+                  <span>Location</span>
+                  <input type="text" name="postEventLocation">
+                </label>
+                <label class="field">
+                  <span>Drive link to photos</span>
+                  <input type="url" name="postEventPhotoDriveLink" placeholder="https://">
+                </label>
+                <label class="field full-width">
+                  <span>Tagging details</span>
+                  <textarea name="postEventTaggingDetails" rows="3" placeholder="Mention accounts or URLs to tag"></textarea>
+                </label>
+                <label class="field full-width upload-field">
+                  <span>Upload posters or post-event material</span>
+                  <input type="file" name="postEventUploads" accept="image/*,.pdf" multiple data-upload-input>
+                  <small class="field-help">Upload event posters, post-event creatives, or image material to go with this request.</small>
+                </label>
+                <div class="upload-gallery full-width" data-upload-gallery></div>
               </div>
             </section>
 
@@ -315,56 +300,41 @@
                 <h3>External or Partner Event Details</h3>
               </div>
 
-              <div class="compose-layout">
-                <div class="field-grid two-col">
-                  <label class="field">
-                    <span>Name of event</span>
-                    <input type="text" name="externalEventName">
-                  </label>
-                  <label class="field">
-                    <span>Partner organisation</span>
-                    <input type="text" name="externalPartnerOrganisation">
-                  </label>
-                  <label class="field">
-                    <span>Registration Link</span>
-                    <input type="url" name="externalRegistrationLink" placeholder="https://">
-                  </label>
-                  <label class="field">
-                    <span>Date</span>
-                    <input type="date" name="externalEventDate">
-                  </label>
-                  <label class="field">
-                    <span>Location</span>
-                    <input type="text" name="externalEventLocation">
-                  </label>
-                  <label class="field">
-                    <span>Creative to be published</span>
-                    <input type="text" name="externalCreativeToBePublished" placeholder="Poster, story, reel, carousel">
-                  </label>
-                  <label class="field full-width">
-                    <span>Tagging links</span>
-                    <textarea name="externalTaggingLinks" rows="3" placeholder="Mention accounts or URLs to tag" data-media-message></textarea>
-                  </label>
-                </div>
-
-                <aside class="media-side-preview" data-media-preview>
-                  <div class="media-preview-card">
-                    <p class="eyebrow">Visual Reference</p>
-                    <h4>Keep the post creative visible while drafting.</h4>
-                    <label class="field">
-                      <span>Reference image from your device</span>
-                      <input type="file" accept="image/*" data-media-file>
-                    </label>
-                    <div class="media-preview-frame" data-media-frame>
-                      <div class="media-preview-empty">
-                        Add a local image to keep it visible here while you write.
-                      </div>
-                    </div>
-                    <p class="media-preview-copy" data-media-copy>
-                      Your draft message will appear here as you type.
-                    </p>
-                  </div>
-                </aside>
+              <div class="field-grid two-col">
+                <label class="field">
+                  <span>Name of event</span>
+                  <input type="text" name="externalEventName">
+                </label>
+                <label class="field">
+                  <span>Partner organisation</span>
+                  <input type="text" name="externalPartnerOrganisation">
+                </label>
+                <label class="field">
+                  <span>Registration Link</span>
+                  <input type="url" name="externalRegistrationLink" placeholder="https://">
+                </label>
+                <label class="field">
+                  <span>Date</span>
+                  <input type="date" name="externalEventDate">
+                </label>
+                <label class="field">
+                  <span>Location</span>
+                  <input type="text" name="externalEventLocation">
+                </label>
+                <label class="field">
+                  <span>Creative to be published</span>
+                  <input type="text" name="externalCreativeToBePublished" placeholder="Poster, story, reel, carousel">
+                </label>
+                <label class="field full-width">
+                  <span>Tagging links</span>
+                  <textarea name="externalTaggingLinks" rows="3" placeholder="Mention accounts or URLs to tag"></textarea>
+                </label>
+                <label class="field full-width upload-field">
+                  <span>Upload posters or partner-event material</span>
+                  <input type="file" name="externalEventUploads" accept="image/*,.pdf" multiple data-upload-input>
+                  <small class="field-help">Upload event posters, partner creatives, or images that should go with this submission.</small>
+                </label>
+                <div class="upload-gallery full-width" data-upload-gallery></div>
               </div>
             </section>
 
