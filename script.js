@@ -248,6 +248,7 @@ function updateProgress(stepName) {
     stepName === "social-details"
     || stepName === "pr"
     || stepName === "achievements"
+    || stepName === "daily-digest"
     || stepName === "details-empty"
   )
     ? "details"
@@ -310,6 +311,11 @@ function goForwardFromIntro() {
 
   if (category === "Achievements") {
     showStep("achievements");
+    return;
+  }
+
+  if (category === "Daily Digest") {
+    showStep("daily-digest");
     return;
   }
 
@@ -448,7 +454,7 @@ function getSummarySections(payload) {
         ["Testimonials or feedback from attendees", payload.prTestimonials],
         ["Follow-up events or next steps", payload.prFollowUpEvents],
         ["Where can readers find more information?", payload.prMoreInformation],
-        ["Media uploads / links", payload.prMediaAssets],
+        ["Uploaded materials", Array.isArray(payload.prUploads) ? payload.prUploads.map((file) => file.name).join(", ") : ""],
         ["Captions for the visual content", payload.prCaptions],
         ["Contact for review and POC", payload.prContactPerson]
       ]
@@ -459,8 +465,11 @@ function getSummarySections(payload) {
     sections.push({
       title: "Daily Digest Details",
       rows: [
-        ["Request Type", "Daily Digest"],
-        ["Status", "Will be grouped with live activity tracking in the workflow planner"]
+        ["Title", payload.dailyDigestTitle],
+        ["Description", payload.dailyDigestDescription],
+        ["Application link or related link", payload.dailyDigestLink],
+        ["Creative uploads", Array.isArray(payload.dailyDigestCreative) ? payload.dailyDigestCreative.map((file) => file.name).join(", ") : ""],
+        ["Image uploads", Array.isArray(payload.dailyDigestImages) ? payload.dailyDigestImages.map((file) => file.name).join(", ") : ""]
       ]
     });
   }
@@ -575,9 +584,8 @@ function createTaskTitle(payload) {
   }
 
   if (payload.category === "Daily Digest") {
-    return payload.employeeName
-      ? `Daily digest request from ${payload.employeeName}`
-      : "New daily digest request";
+    return payload.dailyDigestTitle
+      || (payload.employeeName ? `Daily digest request from ${payload.employeeName}` : "New daily digest request");
   }
 
   return payload.employeeName
@@ -590,9 +598,10 @@ function createTaskSummary(payload) {
     payload.newCreativeDescription
     || payload.achievementDescription
     || payload.prWhySignificant
+    || payload.dailyDigestDescription
     || payload.prEventAnnouncement
     || payload.postEventTaggingDetails
-    || (payload.category === "Daily Digest" ? "Track this under the daily digest flow." : "")
+    || (payload.category === "Daily Digest" ? "Daily digest item ready for workflow tracking." : "")
     || "Awaiting more details"
   );
 }

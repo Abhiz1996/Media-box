@@ -410,88 +410,116 @@
                 <h3>Press Release Details</h3>
               </div>
 
-              <div class="compose-layout">
-                <div class="field-grid two-col">
-                  <label class="field full-width">
-                    <span>What is the event or announcement?</span>
-                    <textarea name="prEventAnnouncement" rows="3"></textarea>
-                  </label>
-                  <label class="field full-width">
-                    <span>Who is involved?</span>
-                    <textarea name="prWhoIsInvolved" rows="3"></textarea>
-                  </label>
-                  <label class="field">
-                    <span>When will / did the event take place?</span>
-                    <input type="datetime-local" name="prWhen">
-                  </label>
-                  <label class="field">
-                    <span>Where is the event being held?</span>
-                    <input type="text" name="prWhere">
-                  </label>
-                  <label class="field full-width">
-                    <span>Why is this event or announcement significant?</span>
-                    <textarea name="prWhySignificant" rows="3"></textarea>
-                  </label>
-                  <label class="field full-width">
-                    <span>What are the key highlights or major announcements?</span>
-                    <textarea name="prKeyHighlights" rows="3"></textarea>
-                  </label>
-                  <label class="field full-width">
-                    <span>Are there any notable speakers or guests?</span>
-                    <textarea name="prNotableSpeakers" rows="3"></textarea>
-                  </label>
-                  <label class="field full-width">
-                    <span>What is the background or context of the event?</span>
-                    <textarea name="prBackgroundContext" rows="3"></textarea>
-                  </label>
-                  <label class="field full-width">
-                    <span>Are there any quotes from key individuals?</span>
-                    <textarea name="prQuotes" rows="3"></textarea>
-                  </label>
-                  <label class="field full-width">
-                    <span>Do you have any testimonials or feedback from attendees?</span>
-                    <textarea name="prTestimonials" rows="3"></textarea>
-                  </label>
-                  <label class="field full-width">
-                    <span>Are there any follow-up events or next steps?</span>
-                    <textarea name="prFollowUpEvents" rows="3"></textarea>
-                  </label>
-                  <label class="field full-width">
-                    <span>Where can readers find more information?</span>
-                    <textarea name="prMoreInformation" rows="3" placeholder="Websites, social media pages, or contact details"></textarea>
-                  </label>
-                  <label class="field full-width">
-                    <span>Upload photos, videos, or other media related to the event</span>
-                    <textarea name="prMediaAssets" rows="3" placeholder="Drive links to photographs, visuals, agendas, posters, videos" data-media-url></textarea>
-                  </label>
-                  <label class="field full-width">
-                    <span>Provide captions for the visual content</span>
-                    <textarea name="prCaptions" rows="3" data-media-message></textarea>
-                  </label>
-                  <label class="field full-width">
-                    <span>Who will be the contact for review and POC?</span>
-                    <textarea name="prContactPerson" rows="3"></textarea>
-                  </label>
-                </div>
+              <div class="field-grid two-col">
+                <label class="field full-width">
+                  <span>What is the event or announcement?</span>
+                  <textarea name="prEventAnnouncement" rows="3"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Who is involved?</span>
+                  <textarea name="prWhoIsInvolved" rows="3"></textarea>
+                </label>
+                <label class="field">
+                  <span>When will / did the event take place?</span>
+                  <input type="datetime-local" name="prWhen">
+                </label>
+                <label class="field">
+                  <span>Where is the event being held?</span>
+                  <input type="text" name="prWhere">
+                </label>
+                <label class="field full-width">
+                  <span>Why is this event or announcement significant?</span>
+                  <textarea name="prWhySignificant" rows="3"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>What are the key highlights or major announcements?</span>
+                  <textarea name="prKeyHighlights" rows="3"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Are there any notable speakers or guests?</span>
+                  <textarea name="prNotableSpeakers" rows="3"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>What is the background or context of the event?</span>
+                  <textarea name="prBackgroundContext" rows="3"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Are there any quotes from key individuals?</span>
+                  <textarea name="prQuotes" rows="3"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Do you have any testimonials or feedback from attendees?</span>
+                  <textarea name="prTestimonials" rows="3"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Are there any follow-up events or next steps?</span>
+                  <textarea name="prFollowUpEvents" rows="3"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Where can readers find more information?</span>
+                  <textarea name="prMoreInformation" rows="3" placeholder="Websites, social media pages, or contact details"></textarea>
+                </label>
+                <label class="field full-width upload-field">
+                  <span>Upload PR creatives or related media</span>
+                  <input type="file" name="prUploads" accept="image/*,.pdf" multiple data-upload-input>
+                  <small class="field-help">Upload posters, press creatives, event visuals, or related PR material.</small>
+                </label>
+                <div class="upload-gallery full-width" data-upload-gallery></div>
+                <label class="field full-width">
+                  <span>Provide captions for the visual content</span>
+                  <textarea name="prCaptions" rows="3"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Who will be the contact for review and POC?</span>
+                  <textarea name="prContactPerson" rows="3"></textarea>
+                </label>
+              </div>
+            </section>
 
-                <aside class="media-side-preview" data-media-preview>
-                  <div class="media-preview-card">
-                    <p class="eyebrow">Visual Reference</p>
-                    <h4>Keep the media beside the caption draft.</h4>
-                    <label class="field">
-                      <span>Reference image from your device</span>
-                      <input type="file" accept="image/*" data-media-file>
-                    </label>
-                    <div class="media-preview-frame" data-media-frame>
-                      <div class="media-preview-empty">
-                        Add a local image or paste a direct image URL to keep it visible here.
-                      </div>
-                    </div>
-                    <p class="media-preview-copy" data-media-copy>
-                      Your draft message will appear here as you type.
-                    </p>
-                  </div>
-                </aside>
+            <section class="form-section submission-section">
+              <div class="submit-panel">
+                <div class="action-bar">
+                  <button type="button" class="ghost-button" data-go-step="intro">Back</button>
+                  <button type="submit" class="primary-button">Submit</button>
+                  <button type="button" class="ghost-button print-summary-button" disabled>Print / Save PDF</button>
+                </div>
+                <p class="status-message" role="status" aria-live="polite"></p>
+              </div>
+            </section>
+          </div>
+
+          <div class="step-panel hidden" data-step-panel="daily-digest">
+            <section class="form-section">
+              <div class="section-title">
+                <span>Q3</span>
+                <h3>Daily Digest Details</h3>
+              </div>
+
+              <div class="field-grid two-col">
+                <label class="field full-width upload-field">
+                  <span>Upload your creative</span>
+                  <input type="file" name="dailyDigestCreative" accept="image/*,.pdf" multiple data-upload-input>
+                  <small class="field-help">Upload the creative asset meant for the daily digest.</small>
+                </label>
+                <div class="upload-gallery full-width" data-upload-gallery></div>
+                <label class="field full-width">
+                  <span>Title</span>
+                  <input type="text" name="dailyDigestTitle" placeholder="Enter title">
+                </label>
+                <label class="field full-width">
+                  <span>Description</span>
+                  <textarea name="dailyDigestDescription" rows="4" placeholder="Write the short daily digest copy"></textarea>
+                </label>
+                <label class="field full-width">
+                  <span>Application link or link if any</span>
+                  <input type="url" name="dailyDigestLink" placeholder="https://">
+                </label>
+                <label class="field full-width upload-field">
+                  <span>Upload relevant images</span>
+                  <input type="file" name="dailyDigestImages" accept="image/*,.pdf" multiple data-upload-input>
+                  <small class="field-help">Upload any supporting images or related material for the daily digest.</small>
+                </label>
+                <div class="upload-gallery full-width" data-upload-gallery></div>
               </div>
             </section>
 
