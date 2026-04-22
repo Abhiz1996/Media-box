@@ -357,52 +357,37 @@
                 <h3>Achievement Details</h3>
               </div>
 
-              <div class="compose-layout">
-                <div class="field-grid two-col">
-                  <label class="field">
-                    <span>Startups / Startup mission</span>
-                    <input type="text" name="achievementStartupName">
-                  </label>
-                  <label class="field">
-                    <span>Photos if any</span>
-                    <input type="url" name="achievementPhotos" placeholder="Drive link / image URL" data-media-url>
-                  </label>
-                  <label class="field">
-                    <span>Logos to be included</span>
-                    <input type="text" name="achievementLogos" placeholder="Startup / partner logos">
-                  </label>
-                  <label class="field">
-                    <span>Tagging links</span>
-                    <input type="text" name="achievementTaggingLinks" placeholder="Social handles or profile links">
-                  </label>
-                  <label class="field">
-                    <span>Contact details of startup</span>
-                    <input type="text" name="achievementContactDetails" placeholder="Can be filled later if needed">
-                  </label>
-                  <label class="field full-width">
-                    <span>Brief description</span>
-                    <textarea name="achievementDescription" rows="4" placeholder="Describe the achievement and why it matters" data-media-message></textarea>
-                  </label>
-                </div>
-
-                <aside class="media-side-preview" data-media-preview>
-                  <div class="media-preview-card">
-                    <p class="eyebrow">Visual Reference</p>
-                    <h4>Keep the achievement image beside the copy.</h4>
-                    <label class="field">
-                      <span>Reference image from your device</span>
-                      <input type="file" accept="image/*" data-media-file>
-                    </label>
-                    <div class="media-preview-frame" data-media-frame>
-                      <div class="media-preview-empty">
-                        Add a local image or paste a direct image URL to keep it visible here.
-                      </div>
-                    </div>
-                    <p class="media-preview-copy" data-media-copy>
-                      Your draft message will appear here as you type.
-                    </p>
-                  </div>
-                </aside>
+              <div class="field-grid two-col">
+                <label class="field">
+                  <span>Startups / Startup mission</span>
+                  <input type="text" name="achievementStartupName">
+                </label>
+                <label class="field">
+                  <span>Photos if any</span>
+                  <input type="url" name="achievementPhotos" placeholder="Drive link / image URL">
+                </label>
+                <label class="field">
+                  <span>Logos to be included</span>
+                  <input type="text" name="achievementLogos" placeholder="Startup / partner logos">
+                </label>
+                <label class="field">
+                  <span>Tagging links</span>
+                  <input type="text" name="achievementTaggingLinks" placeholder="Social handles or profile links">
+                </label>
+                <label class="field">
+                  <span>Contact details of startup</span>
+                  <input type="text" name="achievementContactDetails" placeholder="Can be filled later if needed">
+                </label>
+                <label class="field full-width">
+                  <span>Brief description</span>
+                  <textarea name="achievementDescription" rows="4" placeholder="Describe the achievement and why it matters"></textarea>
+                </label>
+                <label class="field full-width upload-field">
+                  <span>Upload relevant images</span>
+                  <input type="file" name="achievementUploads" accept="image/*,.pdf" multiple data-upload-input>
+                  <small class="field-help">Upload achievement creatives, event images, certificates, or related visual material.</small>
+                </label>
+                <div class="upload-gallery full-width" data-upload-gallery></div>
               </div>
             </section>
 

@@ -424,6 +424,7 @@ function getSummarySections(payload) {
         ["Startups / Startup mission", payload.achievementStartupName],
         ["Brief description", payload.achievementDescription],
         ["Photos if any", payload.achievementPhotos],
+        ["Uploaded materials", Array.isArray(payload.achievementUploads) ? payload.achievementUploads.map((file) => file.name).join(", ") : ""],
         ["Logos to be included", payload.achievementLogos],
         ["Tagging links", payload.achievementTaggingLinks],
         ["Contact details of startup", payload.achievementContactDetails]
