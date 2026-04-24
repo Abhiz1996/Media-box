@@ -231,6 +231,26 @@ function refreshUploadPreviews() {
   uploadInputs.forEach((input) => renderUploadPreview(input));
 }
 
+function validateIntroStep() {
+  const nameField = form.querySelector('input[name="employeeName"]');
+  const departmentField = form.querySelector('select[name="department"]');
+
+  if (!String(nameField?.value || "").trim()) {
+    setStatus("Name is compulsory.", true);
+    nameField?.focus();
+    return false;
+  }
+
+  if (!String(departmentField?.value || "").trim()) {
+    setStatus("Name of Department is compulsory.", true);
+    departmentField?.focus();
+    return false;
+  }
+
+  setStatus("");
+  return true;
+}
+
 function showStep(stepName) {
   currentStep = stepName;
   stepPanels.forEach((panel) => {
@@ -297,6 +317,10 @@ function toggleSocialTypeBranches() {
 }
 
 function goForwardFromIntro() {
+  if (!validateIntroStep()) {
+    return;
+  }
+
   const category = selectedValue("category");
 
   if (category === "Social Media") {
@@ -390,6 +414,7 @@ function getSummarySections(payload) {
         ["Brief description of the event", payload.newCreativeDescription],
         ["Speaker details", payload.newCreativeSpeakerDetails],
         ["Drive link to photographs", payload.newCreativePhotoDriveLink],
+        ["Uploaded speaker photos or references", Array.isArray(payload.newCreativeSpeakerUploads) ? payload.newCreativeSpeakerUploads.map((file) => file.name).join(", ") : ""],
         ["LinkedIn Profile", payload.newCreativeLinkedinProfile],
         ["Partner institutions and logos", payload.newCreativePartnerInstitutions],
         ["Tagging links", payload.newCreativeTaggingLinks]
@@ -468,8 +493,7 @@ function getSummarySections(payload) {
         ["Title", payload.dailyDigestTitle],
         ["Description", payload.dailyDigestDescription],
         ["Application link or related link", payload.dailyDigestLink],
-        ["Creative uploads", Array.isArray(payload.dailyDigestCreative) ? payload.dailyDigestCreative.map((file) => file.name).join(", ") : ""],
-        ["Image uploads", Array.isArray(payload.dailyDigestImages) ? payload.dailyDigestImages.map((file) => file.name).join(", ") : ""]
+        ["Creative uploads", Array.isArray(payload.dailyDigestCreative) ? payload.dailyDigestCreative.map((file) => file.name).join(", ") : ""]
       ]
     });
   }

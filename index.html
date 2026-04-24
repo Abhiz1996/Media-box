@@ -37,16 +37,11 @@
       <section class="hero-panel hero-panel-clean">
         <div class="hero-copy">
           <p class="eyebrow">Communications Intake</p>
-          <h1>Capture media requests without slowing the team down.</h1>
+          <h1>KSUM MEDIA BOX</h1>
           <p class="hero-text">
             A lightweight request desk for social media, PR, and achievement stories.
             Share the brief you have now, and the internal team can shape the workflow later.
           </p>
-
-          <div class="hero-actions">
-            <a class="primary-link" href="#requestHub">Submit a Request</a>
-            <a class="ghost-link" href="#requestHub">Start Here</a>
-          </div>
         </div>
       </section>
 
@@ -77,12 +72,12 @@
               <div class="field-grid two-col">
                 <label class="field">
                   <span>Name</span>
-                  <input type="text" name="employeeName" placeholder="Enter full name">
+                  <input type="text" name="employeeName" placeholder="Enter full name" required>
                 </label>
 
                 <label class="field">
                   <span>Name of Department</span>
-                  <select name="department">
+                  <select name="department" required>
                     <option value="">Select department</option>
                     <option>Rink</option>
                     <option>IEDC</option>
@@ -160,7 +155,7 @@
 
                 <label class="choice-card">
                   <input type="radio" name="socialType" value="Post Event">
-                  <strong>Post Event Poster</strong>
+                  <strong>Post-Event</strong>
                   <small>Poster based on completed event coverage</small>
                 </label>
 
@@ -189,79 +184,64 @@
                 <h3>New Creative Details</h3>
               </div>
 
-              <div class="compose-layout">
-                <div class="field-grid two-col">
-                  <label class="field">
-                    <span>Name of event</span>
-                    <input type="text" name="newCreativeEventName">
-                  </label>
-                  <label class="field">
-                    <span>Date of event</span>
-                    <input type="date" name="newCreativeEventDate">
-                  </label>
-                  <label class="field">
-                    <span>Time</span>
-                    <input type="time" name="newCreativeEventTime">
-                  </label>
-                  <label class="field">
-                    <span>Location</span>
-                    <input type="text" name="newCreativeLocation" placeholder="Venue / city">
-                  </label>
-                  <label class="field">
-                    <span>Registration Link</span>
-                    <input type="url" name="newCreativeRegistrationLink" placeholder="https://">
-                  </label>
-                  <label class="field">
-                    <span>Speaker details</span>
-                    <input type="text" name="newCreativeSpeakerDetails" placeholder="Speaker names, titles">
-                  </label>
-                  <label class="field">
-                    <span>Drive link to photographs</span>
-                    <input type="url" name="newCreativePhotoDriveLink" placeholder="https://" data-media-url>
-                  </label>
-                  <label class="field">
-                    <span>LinkedIn Profile</span>
-                    <input type="url" name="newCreativeLinkedinProfile" placeholder="https://linkedin.com/in/...">
-                  </label>
-                  <label class="field">
-                    <span>Partner institutions and logos</span>
-                    <input type="text" name="newCreativePartnerInstitutions" placeholder="Institutions / logo notes">
-                  </label>
-                  <label class="field">
-                    <span>Tagging links</span>
-                    <input type="text" name="newCreativeTaggingLinks" placeholder="Instagram / LinkedIn / X handles">
-                  </label>
-                  <label class="field full-width">
-                    <span>Brief description of the event</span>
-                    <textarea name="newCreativeDescription" rows="4" placeholder="Share the message or event context" data-media-message></textarea>
-                  </label>
-                </div>
-
-                <aside class="media-side-preview" data-media-preview>
-                  <div class="media-preview-card">
-                    <p class="eyebrow">Visual Reference</p>
-                    <h4>Keep the image visible while writing.</h4>
-                    <label class="field">
-                      <span>Reference image from your device</span>
-                      <input type="file" accept="image/*" data-media-file>
-                    </label>
-                    <div class="media-preview-frame" data-media-frame>
-                      <div class="media-preview-empty">
-                        Add a local image or paste a direct image URL to keep it visible here.
-                      </div>
-                    </div>
-                    <p class="media-preview-copy" data-media-copy>
-                      Your draft message will appear here as you type.
-                    </p>
-                  </div>
-                </aside>
+              <div class="field-grid two-col">
+                <label class="field">
+                  <span>Name of event</span>
+                  <input type="text" name="newCreativeEventName">
+                </label>
+                <label class="field">
+                  <span>Date of event</span>
+                  <input type="date" name="newCreativeEventDate">
+                </label>
+                <label class="field">
+                  <span>Time</span>
+                  <input type="time" name="newCreativeEventTime">
+                </label>
+                <label class="field">
+                  <span>Location</span>
+                  <input type="text" name="newCreativeLocation" placeholder="Venue / city">
+                </label>
+                <label class="field">
+                  <span>Registration Link</span>
+                  <input type="url" name="newCreativeRegistrationLink" placeholder="https://">
+                </label>
+                <label class="field">
+                  <span>Speaker details</span>
+                  <input type="text" name="newCreativeSpeakerDetails" placeholder="Speaker names, titles">
+                </label>
+                <label class="field">
+                  <span>Drive link to photographs</span>
+                  <input type="url" name="newCreativePhotoDriveLink" placeholder="https://">
+                </label>
+                <label class="field">
+                  <span>LinkedIn Profile</span>
+                  <input type="url" name="newCreativeLinkedinProfile" placeholder="https://linkedin.com/in/...">
+                </label>
+                <label class="field">
+                  <span>Partner institutions and logos</span>
+                  <input type="text" name="newCreativePartnerInstitutions" placeholder="Institutions / logo notes">
+                </label>
+                <label class="field">
+                  <span>Tagging links</span>
+                  <input type="text" name="newCreativeTaggingLinks" placeholder="Instagram / LinkedIn / X handles">
+                </label>
+                <label class="field full-width">
+                  <span>Brief description of the event</span>
+                  <textarea name="newCreativeDescription" rows="4" placeholder="Share the message or event context"></textarea>
+                </label>
+                <label class="field full-width upload-field">
+                  <span>Upload speaker photos or creative references</span>
+                  <input type="file" name="newCreativeSpeakerUploads" accept="image/*,.pdf" multiple data-upload-input>
+                  <small class="field-help">Upload one or more speaker photos, event images, or other visual references related to this creative.</small>
+                </label>
+                <div class="upload-gallery full-width" data-upload-gallery></div>
               </div>
             </section>
 
             <section class="form-section hidden" data-social-branch="Post Event">
               <div class="section-title">
                 <span>Q4</span>
-                <h3>Post-Event Poster Details</h3>
+                <h3>Post-Event Details</h3>
               </div>
 
               <div class="field-grid two-col">
@@ -278,19 +258,13 @@
                   <input type="text" name="postEventLocation">
                 </label>
                 <label class="field">
-                  <span>Drive link to photos</span>
+                  <span>Drive link to photos or creatives</span>
                   <input type="url" name="postEventPhotoDriveLink" placeholder="https://">
                 </label>
                 <label class="field full-width">
                   <span>Tagging details</span>
                   <textarea name="postEventTaggingDetails" rows="3" placeholder="Mention accounts or URLs to tag"></textarea>
                 </label>
-                <label class="field full-width upload-field">
-                  <span>Upload posters or post-event material</span>
-                  <input type="file" name="postEventUploads" accept="image/*,.pdf" multiple data-upload-input>
-                  <small class="field-help">Upload event posters, post-event creatives, or image material to go with this request.</small>
-                </label>
-                <div class="upload-gallery full-width" data-upload-gallery></div>
               </div>
             </section>
 
@@ -514,12 +488,6 @@
                   <span>Application link or link if any</span>
                   <input type="url" name="dailyDigestLink" placeholder="https://">
                 </label>
-                <label class="field full-width upload-field">
-                  <span>Upload relevant images</span>
-                  <input type="file" name="dailyDigestImages" accept="image/*,.pdf" multiple data-upload-input>
-                  <small class="field-help">Upload any supporting images or related material for the daily digest.</small>
-                </label>
-                <div class="upload-gallery full-width" data-upload-gallery></div>
               </div>
             </section>
 
