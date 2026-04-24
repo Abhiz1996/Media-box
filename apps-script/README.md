@@ -1,60 +1,73 @@
 # Media Box Backend Setup
 
-This folder contains a Google Apps Script backend template for:
+This Apps Script backend is now aligned with the current intake form and can:
 
-- receiving form submissions from the website
-- appending the answers to Google Sheets
-- generating a PDF copy of each submission
-- emailing the PDF to a configured address later
+- receive every form submission as JSON
+- append structured data into Google Sheets with clear headings
+- generate a PDF copy of the submission
+- email that PDF to a configured address
 
-## 1. Create the spreadsheet
+## 1. Configure `Code.gs`
 
-1. Create a Google Sheet.
-2. Copy the spreadsheet ID from the URL.
-3. Paste it into `spreadsheetId` in [Code.gs](/Users/ksummacpro2/Documents/New%20project/apps-script/Code.gs).
+Open [`apps-script/Code.gs`](./Code.gs) and replace:
 
-## 2. Create the PDF folder
-
-1. Create a Google Drive folder for PDFs.
-2. Copy the folder ID from the URL.
-3. Paste it into `pdfFolderId` in [Code.gs](/Users/ksummacpro2/Documents/New%20project/apps-script/Code.gs).
-
-## 3. Add the email address later
-
-When you share the final email address, replace:
-
+- `PASTE_YOUR_GOOGLE_SHEET_ID_HERE`
+- `PASTE_YOUR_DRIVE_FOLDER_ID_HERE`
 - `ADD_EMAIL_LATER@example.com`
 
-with the actual recipient email in [Code.gs](/Users/ksummacpro2/Documents/New%20project/apps-script/Code.gs).
+Also update `companyName` if needed.
+
+## 2. Create the spreadsheet
+
+Create a Google Sheet and copy the spreadsheet ID from the URL.
+
+The script will automatically create the sheet tab if it does not already exist, and it will insert the correct headers on the first submission.
+
+## 3. Create the PDF folder
+
+Create a Google Drive folder for PDF copies and copy the folder ID from the URL.
+
+Each submission will generate one PDF file in that folder.
 
 ## 4. Deploy the Apps Script
 
-1. Open [script.new](https://script.new).
-2. Replace the default code with the content of [Code.gs](/Users/ksummacpro2/Documents/New%20project/apps-script/Code.gs).
-3. Save the project.
-4. Click `Deploy` -> `New deployment`.
-5. Select `Web app`.
-6. Set access to `Anyone`.
-7. Deploy and copy the web app URL.
+1. Open [script.new](https://script.new)
+2. Replace the default file with the contents of [`apps-script/Code.gs`](./Code.gs)
+3. Save the project
+4. Click `Deploy` -> `New deployment`
+5. Select `Web app`
+6. Set access to `Anyone`
+7. Deploy and copy the web app URL
 
 ## 5. Connect the frontend
 
-Open [script.js](/Users/ksummacpro2/Documents/New%20project/script.js) and set:
+Open the root [`script.js`](../script.js) and set:
 
 ```js
 submissionEndpoint: "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE"
 ```
 
-After that, every form submission can:
+After that, each submission can:
 
-- show a questionnaire summary on screen
-- be printed or saved as PDF from the browser
-- be written into Google Sheets
-- generate a Drive PDF copy
-- email the PDF attachment once the final address is added
+- show the summary on screen
+- write structured data to Google Sheets
+- generate a Drive PDF
+- email the PDF to the configured inbox
 
-## Notes
+## What the backend now supports
 
-- The frontend already works without the backend. In that mode it generates the summary locally and lets you print/save it as a PDF manually.
-- Apps Script PDF generation uses the submitted data to render a structured document.
-- If you want, I can also wire this to upload actual files instead of just Drive links in the next step.
+The backend is updated for the current form, including:
+
+- Social Media
+- New Creative with repeatable speaker cards
+- Post-Event
+- External or Partner Event
+- PR uploads
+- Achievement uploads
+- Daily Digest dedicated fields
+
+It also stores the raw payload JSON in the sheet for reference.
+
+## Important note
+
+The frontend already collects uploads as structured metadata in the JSON payload. This backend records the uploaded file names in the sheet/PDF/email output, but it does not yet upload those files into Google Drive as separate stored assets.
