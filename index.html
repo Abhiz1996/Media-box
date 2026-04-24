@@ -206,10 +206,6 @@
                   <input type="url" name="newCreativeRegistrationLink" placeholder="https://">
                 </label>
                 <label class="field">
-                  <span>Speaker details</span>
-                  <input type="text" name="newCreativeSpeakerDetails" placeholder="Speaker names, titles">
-                </label>
-                <label class="field">
                   <span>Drive link to photographs</span>
                   <input type="url" name="newCreativePhotoDriveLink" placeholder="https://">
                 </label>
@@ -229,12 +225,16 @@
                   <span>Brief description of the event</span>
                   <textarea name="newCreativeDescription" rows="4" placeholder="Share the message or event context"></textarea>
                 </label>
-                <label class="field full-width upload-field">
-                  <span>Upload speaker photos or creative references</span>
-                  <input type="file" name="newCreativeSpeakerUploads" accept="image/*,.pdf" multiple data-upload-input>
-                  <small class="field-help">Upload one or more speaker photos, event images, or other visual references related to this creative.</small>
-                </label>
-                <div class="upload-gallery full-width" data-upload-gallery></div>
+                <div class="speaker-repeater full-width" data-speaker-repeater>
+                  <div class="speaker-repeater-header">
+                    <div>
+                      <span class="speaker-kicker">Speaker Details</span>
+                      <h4>Add one card per speaker.</h4>
+                    </div>
+                    <button type="button" class="ghost-button speaker-add-button" data-add-speaker>Add Another Speaker</button>
+                  </div>
+                  <div class="speaker-cards" data-speaker-cards></div>
+                </div>
               </div>
             </section>
 

@@ -23,6 +23,9 @@ const stepPanels = Array.from(document.querySelectorAll("[data-step-panel]"));
 const progressSteps = Array.from(document.querySelectorAll("[data-progress-step]"));
 const mediaPreviewBlocks = Array.from(document.querySelectorAll("[data-media-preview]"));
 const uploadInputs = Array.from(document.querySelectorAll("[data-upload-input]"));
+const speakerRepeater = document.querySelector("[data-speaker-repeater]");
+const speakerCards = document.querySelector("[data-speaker-cards]");
+const addSpeakerButton = document.querySelector("[data-add-speaker]");
 
 let currentStep = "intro";
 
@@ -85,6 +88,10 @@ function clearHiddenSectionFields(section) {
 
     field.value = "";
   });
+
+  if (section.querySelector("[data-speaker-repeater]")) {
+    resetSpeakerCards();
+  }
 }
 
 function isDirectImageUrl(value) {
@@ -229,6 +236,131 @@ function setupUploadPreviews() {
 
 function refreshUploadPreviews() {
   uploadInputs.forEach((input) => renderUploadPreview(input));
+}
+
+function createSpeakerCard(index) {
+  const card = document.createElement("article");
+  card.className = "speaker-card";
+  card.dataset.speakerCard = String(index);
+  card.innerHTML = `
+    <div class="speaker-card-header">
+      <strong>Speaker ${index + 1}</strong>
+      ${index > 0 ? '<button type="button" class="speaker-remove-button" data-remove-speaker>Remove</button>' : ""}
+    </div>
+    <div class="speaker-card-grid">
+      <label class="field">
+        <span>Speaker name</span>
+        <input type="text" placeholder="Enter speaker name" data-speaker-name>
+      </label>
+      <label class="field">
+        <span>Speaker title / designation</span>
+        <input type="text" placeholder="Enter title or role" data-speaker-title>
+      </label>
+      <label class="field full-width">
+        <span>Upload speaker photos</span>
+        <input type="file" accept="image/*,.pdf" multiple data-speaker-photos>
+        <small class="field-help">Upload one or more photos for this speaker.</small>
+      </label>
+      <div class="speaker-file-list full-width" data-speaker-file-list>
+        <div class="upload-empty-state">Speaker photo uploads will appear here.</div>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function updateSpeakerCardLabels() {
+  if (!speakerCards) {
+    return;
+  }
+
+  Array.from(speakerCards.children).forEach((card, index) => {
+    card.dataset.speakerCard = String(index);
+    const title = card.querySelector(".speaker-card-header strong");
+    if (title) {
+      title.textContent = `Speaker ${index + 1}`;
+    }
+  });
+}
+
+function renderSpeakerFiles(input) {
+  const list = input.closest(".speaker-card")?.querySelector("[data-speaker-file-list]");
+
+  if (!list) {
+    return;
+  }
+
+  const files = Array.from(input.files || []);
+
+  if (!files.length) {
+    list.innerHTML = '<div class="upload-empty-state">Speaker photo uploads will appear here.</div>';
+    return;
+  }
+
+  list.innerHTML = files.map((file) => `
+    <div class="speaker-file-chip">
+      <strong>${sanitizeText(file.name)}</strong>
+      <span>${Math.max(1, Math.round(file.size / 1024))} KB</span>
+    </div>
+  `).join("");
+}
+
+function attachSpeakerCardEvents(card) {
+  const fileInput = card.querySelector("[data-speaker-photos]");
+  const removeButton = card.querySelector("[data-remove-speaker]");
+
+  if (fileInput) {
+    fileInput.addEventListener("change", () => renderSpeakerFiles(fileInput));
+    renderSpeakerFiles(fileInput);
+  }
+
+  if (removeButton) {
+    removeButton.addEventListener("click", () => {
+      card.remove();
+      updateSpeakerCardLabels();
+    });
+  }
+}
+
+function addSpeakerCard() {
+  if (!speakerCards) {
+    return;
+  }
+
+  const card = createSpeakerCard(speakerCards.children.length);
+  speakerCards.appendChild(card);
+  attachSpeakerCardEvents(card);
+  updateSpeakerCardLabels();
+}
+
+function resetSpeakerCards() {
+  if (!speakerCards) {
+    return;
+  }
+
+  speakerCards.innerHTML = "";
+  addSpeakerCard();
+}
+
+function setupSpeakerRepeater() {
+  if (!speakerRepeater || !speakerCards || !addSpeakerButton) {
+    return;
+  }
+
+  resetSpeakerCards();
+  addSpeakerButton.addEventListener("click", addSpeakerCard);
+}
+
+function collectSpeakerEntries() {
+  if (!speakerCards) {
+    return [];
+  }
+
+  return Array.from(speakerCards.querySelectorAll(".speaker-card")).map((card) => ({
+    name: String(card.querySelector("[data-speaker-name]")?.value || "").trim(),
+    title: String(card.querySelector("[data-speaker-title]")?.value || "").trim(),
+    files: Array.from(card.querySelector("[data-speaker-photos]")?.files || [])
+  })).filter((speaker) => speaker.name || speaker.title || speaker.files.length);
 }
 
 function validateIntroStep() {
@@ -405,6 +537,14 @@ function getSummarySections(payload) {
     let rows = [["Social Media Type", payload.socialType || "Not provided"]];
 
     if (payload.socialType === "New Creative") {
+      const speakerSummary = Array.isArray(payload.newCreativeSpeakers)
+        ? payload.newCreativeSpeakers.map((speaker, index) => {
+            const namePart = [speaker.name, speaker.title].filter(Boolean).join(" - ");
+            const uploadCount = speaker.uploads?.length ? ` (${speaker.uploads.length} upload${speaker.uploads.length === 1 ? "" : "s"})` : "";
+            return `${namePart || `Speaker ${index + 1}`}${uploadCount}`;
+          }).join(", ")
+        : "";
+
       rows = rows.concat([
         ["Name of event", payload.newCreativeEventName],
         ["Date of event", formatDateValue(payload.newCreativeEventDate)],
@@ -412,9 +552,8 @@ function getSummarySections(payload) {
         ["Location", payload.newCreativeLocation],
         ["Registration Link", payload.newCreativeRegistrationLink],
         ["Brief description of the event", payload.newCreativeDescription],
-        ["Speaker details", payload.newCreativeSpeakerDetails],
+        ["Speaker details", speakerSummary],
         ["Drive link to photographs", payload.newCreativePhotoDriveLink],
-        ["Uploaded speaker photos or references", Array.isArray(payload.newCreativeSpeakerUploads) ? payload.newCreativeSpeakerUploads.map((file) => file.name).join(", ") : ""],
         ["LinkedIn Profile", payload.newCreativeLinkedinProfile],
         ["Partner institutions and logos", payload.newCreativePartnerInstitutions],
         ["Tagging links", payload.newCreativeTaggingLinks]
@@ -584,6 +723,16 @@ async function formDataToObject() {
     payload[key] = value;
   }
 
+  const speakers = await Promise.all(collectSpeakerEntries().map(async (speaker) => ({
+    name: speaker.name,
+    title: speaker.title,
+    uploads: await Promise.all(speaker.files.map((file) => serializeUpload(file)))
+  })));
+
+  if (speakers.length) {
+    payload.newCreativeSpeakers = speakers;
+  }
+
   payload.submittedAt = new Date().toISOString();
   return payload;
 }
@@ -715,6 +864,7 @@ printSummaryButtons.forEach((button) => {
   });
 });
 
+setupSpeakerRepeater();
 setupMediaPreviews();
 setupUploadPreviews();
 

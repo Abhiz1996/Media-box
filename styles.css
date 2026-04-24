@@ -545,6 +545,100 @@ a {
   white-space: pre-wrap;
 }
 
+.speaker-repeater {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.speaker-repeater-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.speaker-kicker {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--teal-deep);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.speaker-repeater-header h4 {
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+}
+
+.speaker-add-button {
+  min-height: 42px;
+}
+
+.speaker-cards {
+  display: grid;
+  gap: 14px;
+}
+
+.speaker-card {
+  padding: 16px;
+  border: 1px solid rgba(18, 33, 43, 0.1);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.speaker-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.speaker-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.speaker-remove-button {
+  border: 1px solid rgba(18, 33, 43, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--copper);
+  font-weight: 700;
+  padding: 8px 14px;
+}
+
+.speaker-file-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.speaker-file-chip {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid rgba(18, 33, 43, 0.1);
+  border-radius: 16px;
+  background: rgba(247, 249, 250, 0.92);
+}
+
+.speaker-file-chip strong {
+  word-break: break-word;
+}
+
+.speaker-file-chip span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .upload-field input[type="file"] {
   min-height: auto;
   padding: 12px;
@@ -2522,5 +2616,14 @@ body.ops-theme {
   .ops-panel,
   .ops-metric-card {
     padding: 18px;
+  }
+
+  .speaker-repeater-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .speaker-card-grid {
+    grid-template-columns: 1fr;
   }
 }
