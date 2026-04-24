@@ -634,6 +634,10 @@ a {
   font-weight: 700;
 }
 
+.required-mark {
+  color: #c64343;
+}
+
 input,
 select,
 textarea {
