@@ -1,5 +1,5 @@
 const APP_CONFIG = {
-  submissionEndpoint: "https://script.google.com/macros/s/AKfycbw156sqxjPvpaotfhMWC-3jWmASDNMoxFCIbvOqszZf8KjyD0vMjFChsscJCO6_p89N/exec",
+  submissionEndpoint: "https://script.google.com/a/macros/startupmission.in/s/AKfycbzx_XkSDipOMsJxqHq8TwhcoprlMEcZfjrTsuFgN_hfXdxubVIgaAXCol5vzIgwLube/exec",
   companyName: "Media Box",
   timezone: "Asia/Kolkata"
 };
