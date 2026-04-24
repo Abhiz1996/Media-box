@@ -833,7 +833,13 @@ async function submitToEndpoint(payload) {
     throw new Error(`Submission failed with status ${response.status}.`);
   }
 
-  return response.json().catch(() => ({ mode: "connected" }));
+  const result = await response.json().catch(() => ({ mode: "connected" }));
+
+  if (result && result.ok === false) {
+    throw new Error(result.error || "Backend submission failed.");
+  }
+
+  return result;
 }
 
 categoryInputs.forEach((input) => {
