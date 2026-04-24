@@ -19,6 +19,7 @@ const HEADERS = [
   "New Creative - Registration Link",
   "New Creative - Description",
   "New Creative - Speakers",
+  "New Creative - Speaker Upload Links",
   "New Creative - Photo Drive Link",
   "New Creative - LinkedIn Profile",
   "New Creative - Partner Institutions and Logos",
@@ -62,6 +63,7 @@ const HEADERS = [
   "Daily Digest - Description",
   "Daily Digest - Link",
   "Daily Digest - Creative Uploads",
+  "Google Sheet URL",
   "PDF URL",
   "Raw Payload JSON"
 ];
@@ -69,20 +71,21 @@ const HEADERS = [
 function doPost(event) {
   try {
     const payload = JSON.parse(event.postData.contents || "{}");
-    const normalized = normalizePayload_(payload);
+    const normalized = attachDriveLinks_(normalizePayload_(payload));
     const sheet = getSheet_();
     ensureHeaders_(sheet);
 
     const pdfFile = createPdfFromPayload_(normalized);
     const pdfUrl = pdfFile ? pdfFile.getUrl() : "";
+    const sheetUrl = SpreadsheetApp.openById(CONFIG.spreadsheetId).getUrl();
 
-    sheet.appendRow(buildSheetRow_(normalized, pdfUrl));
+    sheet.appendRow(buildSheetRow_(normalized, sheetUrl, pdfUrl));
 
     if (CONFIG.notifyEmail && CONFIG.notifyEmail.indexOf("ADD_EMAIL_LATER") === -1) {
       MailApp.sendEmail({
         to: CONFIG.notifyEmail,
         subject: `${CONFIG.companyName} Media Request - ${normalized.category || "New Submission"}`,
-        htmlBody: createEmailHtml_(normalized, pdfUrl),
+        htmlBody: createEmailHtml_(normalized, sheetUrl, pdfUrl),
         attachments: pdfFile ? [pdfFile.getBlob()] : []
       });
     }
@@ -109,8 +112,10 @@ function getSheet_() {
 function ensureHeaders_(sheet) {
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
-    sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold");
+  } else {
+    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
   }
+  sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold");
 }
 
 function normalizePayload_(payload) {
@@ -184,7 +189,8 @@ function normalizeUploadArray_(value) {
     return {
       name: file && file.name ? String(file.name) : "",
       type: file && file.type ? String(file.type) : "",
-      size: file && file.size ? Number(file.size) : 0
+      size: file && file.size ? Number(file.size) : 0,
+      dataUrl: file && file.dataUrl ? String(file.dataUrl) : ""
     };
   }).filter(function(file) {
     return file.name;
@@ -213,6 +219,12 @@ function summarizeUploads_(uploads) {
   }).join(", ");
 }
 
+function summarizeUploadLinks_(uploads) {
+  return uploads.map(function(file) {
+    return file.driveUrl || "";
+  }).filter(Boolean).join(", ");
+}
+
 function summarizeSpeakers_(speakers) {
   return speakers.map(function(speaker, index) {
     const parts = [speaker.name, speaker.title].filter(Boolean);
@@ -223,7 +235,73 @@ function summarizeSpeakers_(speakers) {
   }).join(", ");
 }
 
-function buildSheetRow_(payload, pdfUrl) {
+function summarizeSpeakerUploadLinks_(speakers) {
+  return speakers.map(function(speaker, index) {
+    const label = [speaker.name, speaker.title].filter(Boolean).join(" - ") || `Speaker ${index + 1}`;
+    const links = speaker.uploads.map(function(file) {
+      return file.driveUrl || "";
+    }).filter(Boolean);
+    return links.length ? `${label}: ${links.join(" | ")}` : "";
+  }).filter(Boolean).join(" || ");
+}
+
+function attachDriveLinks_(payload) {
+  const assetFolder = DriveApp.getFolderById(CONFIG.pdfFolderId);
+
+  payload.externalEventUploads = createDriveFilesFromUploads_(payload.externalEventUploads, payload, "external-event", assetFolder);
+  payload.achievementUploads = createDriveFilesFromUploads_(payload.achievementUploads, payload, "achievement", assetFolder);
+  payload.prUploads = createDriveFilesFromUploads_(payload.prUploads, payload, "pr", assetFolder);
+  payload.dailyDigestCreative = createDriveFilesFromUploads_(payload.dailyDigestCreative, payload, "daily-digest", assetFolder);
+  payload.newCreativeSpeakers = payload.newCreativeSpeakers.map(function(speaker, index) {
+    return {
+      name: speaker.name,
+      title: speaker.title,
+      uploads: createDriveFilesFromUploads_(speaker.uploads, payload, `speaker-${index + 1}`, assetFolder)
+    };
+  });
+
+  return payload;
+}
+
+function createDriveFilesFromUploads_(uploads, payload, prefix, folder) {
+  return uploads.map(function(file, index) {
+    if (!file.dataUrl) {
+      return file;
+    }
+
+    const blob = blobFromDataUrl_(file);
+    const safeName = buildUploadFileName_(payload, prefix, index, file.name);
+    const driveFile = folder.createFile(blob.setName(safeName));
+
+    return {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      driveUrl: driveFile.getUrl()
+    };
+  });
+}
+
+function blobFromDataUrl_(file) {
+  const match = String(file.dataUrl || "").match(/^data:(.+);base64,(.+)$/);
+
+  if (!match) {
+    throw new Error(`Invalid upload data for file: ${file.name}`);
+  }
+
+  const contentType = match[1];
+  const bytes = Utilities.base64Decode(match[2]);
+  return Utilities.newBlob(bytes, contentType, file.name || "upload");
+}
+
+function buildUploadFileName_(payload, prefix, index, originalName) {
+  const base = `${payload.employeeName || "request"}-${payload.category || "submission"}-${prefix}-${index + 1}`;
+  const extensionMatch = String(originalName || "").match(/(\.[A-Za-z0-9]+)$/);
+  const extension = extensionMatch ? extensionMatch[1] : "";
+  return `${base.replace(/[^\w-]+/g, "-")}${extension}`;
+}
+
+function buildSheetRow_(payload, sheetUrl, pdfUrl) {
   return [
     payload.submittedAt,
     payload.employeeName,
@@ -237,6 +315,7 @@ function buildSheetRow_(payload, pdfUrl) {
     payload.newCreativeRegistrationLink,
     payload.newCreativeDescription,
     summarizeSpeakers_(payload.newCreativeSpeakers),
+    summarizeSpeakerUploadLinks_(payload.newCreativeSpeakers),
     payload.newCreativePhotoDriveLink,
     payload.newCreativeLinkedinProfile,
     payload.newCreativePartnerInstitutions,
@@ -279,7 +358,8 @@ function buildSheetRow_(payload, pdfUrl) {
     payload.dailyDigestTitle,
     payload.dailyDigestDescription,
     payload.dailyDigestLink,
-    summarizeUploads_(payload.dailyDigestCreative),
+    summarizeUploadLinks_(payload.dailyDigestCreative),
+    sheetUrl,
     pdfUrl,
     JSON.stringify(payload.rawPayload)
   ];
@@ -329,6 +409,7 @@ function createPdfHtml_(payload) {
         ["Registration Link", payload.newCreativeRegistrationLink],
         ["Brief description", payload.newCreativeDescription],
         ["Speaker details", summarizeSpeakers_(payload.newCreativeSpeakers)],
+        ["Speaker upload links", summarizeSpeakerUploadLinks_(payload.newCreativeSpeakers)],
         ["Drive link to photographs", payload.newCreativePhotoDriveLink],
         ["LinkedIn Profile", payload.newCreativeLinkedinProfile],
         ["Partner institutions and logos", payload.newCreativePartnerInstitutions],
@@ -361,7 +442,7 @@ function createPdfHtml_(payload) {
         ["Location", payload.externalEventLocation],
         ["Creative to be published", payload.externalCreativeToBePublished],
         ["Tagging links", payload.externalTaggingLinks],
-        ["Uploaded materials", summarizeUploads_(payload.externalEventUploads)]
+        ["Uploaded materials", summarizeUploadLinks_(payload.externalEventUploads)]
       ]
     });
   }
@@ -373,7 +454,7 @@ function createPdfHtml_(payload) {
         ["Startups / Startup mission", payload.achievementStartupName],
         ["Brief description", payload.achievementDescription],
         ["Photos if any", payload.achievementPhotos],
-        ["Uploaded materials", summarizeUploads_(payload.achievementUploads)],
+        ["Uploaded materials", summarizeUploadLinks_(payload.achievementUploads)],
         ["Logos to be included", payload.achievementLogos],
         ["Tagging links", payload.achievementTaggingLinks],
         ["Contact details", payload.achievementContactDetails]
@@ -397,7 +478,7 @@ function createPdfHtml_(payload) {
         ["Testimonials", payload.prTestimonials],
         ["Follow-up events", payload.prFollowUpEvents],
         ["More information", payload.prMoreInformation],
-        ["Uploaded materials", summarizeUploads_(payload.prUploads)],
+        ["Uploaded materials", summarizeUploadLinks_(payload.prUploads)],
         ["Captions", payload.prCaptions],
         ["Contact person", payload.prContactPerson]
       ]
@@ -411,7 +492,7 @@ function createPdfHtml_(payload) {
         ["Title", payload.dailyDigestTitle],
         ["Description", payload.dailyDigestDescription],
         ["Application link or related link", payload.dailyDigestLink],
-        ["Creative uploads", summarizeUploads_(payload.dailyDigestCreative)]
+        ["Creative uploads", summarizeUploadLinks_(payload.dailyDigestCreative)]
       ]
     });
   }
@@ -461,13 +542,14 @@ function createPdfHtml_(payload) {
   `;
 }
 
-function createEmailHtml_(payload, pdfUrl) {
+function createEmailHtml_(payload, sheetUrl, pdfUrl) {
   return `
     <p>A new media request has been submitted.</p>
     <p><strong>Name:</strong> ${escapeHtml_(payload.employeeName || "")}</p>
     <p><strong>Department:</strong> ${escapeHtml_(payload.department || "")}</p>
     <p><strong>Category:</strong> ${escapeHtml_(payload.category || "")}</p>
     ${payload.socialType ? `<p><strong>Social Type:</strong> ${escapeHtml_(payload.socialType)}</p>` : ""}
+    <p><a href="${sheetUrl}">Open Google Sheet</a></p>
     ${pdfUrl ? `<p><a href="${pdfUrl}">Open PDF copy</a></p>` : ""}
   `;
 }
