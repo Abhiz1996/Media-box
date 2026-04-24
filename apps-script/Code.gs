@@ -1,8 +1,8 @@
 const CONFIG = {
-  spreadsheetId: "PASTE_YOUR_GOOGLE_SHEET_ID_HERE",
+  spreadsheetId: "1_RQduaZenU_B8Y15Q3nrOCoI2wxUmUP26ZMcj8jrcy4",
   sheetName: "Media Requests",
-  pdfFolderId: "PASTE_YOUR_DRIVE_FOLDER_ID_HERE",
-  notifyEmail: "ADD_EMAIL_LATER@example.com",
+  pdfFolderId: "19FH8KMbKq4AMqEwzhkMFSRqo0YAA-jWV",
+  notifyEmail: "abhishek@startupmission.in",
   companyName: "KSUM Media Box"
 };
 
